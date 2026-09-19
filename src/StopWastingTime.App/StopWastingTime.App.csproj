@@ -27,6 +27,7 @@
   <ItemGroup>
     <!-- Also embedded as a resource so the window and, later, the tray icon can show it. -->
     <Resource Include="Assets\app.ico" />
+    <Resource Include="Assets\logo.png" />
   </ItemGroup>
 
   <ItemGroup>

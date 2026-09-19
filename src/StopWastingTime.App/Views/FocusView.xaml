@@ -1,0 +1,159 @@
+<UserControl x:Class="StopWastingTime.App.Views.FocusView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:StopWastingTime.App.Controls"
+             xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:FocusViewModel}"
+             d:DesignHeight="640"
+             d:DesignWidth="760">
+
+    <Grid Margin="32,28,32,28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Enfoque" Style="{StaticResource TitleTextStyle}" />
+
+        <!-- Countdown ring -->
+        <Grid Grid.Row="1" Width="260" Height="260" VerticalAlignment="Center">
+            <Ellipse Stroke="{StaticResource BorderBrush}" StrokeThickness="14" />
+
+            <controls:ProgressRing Fraction="{Binding ProgressFraction}"
+                                   Thickness="14"
+                                   Stroke="{StaticResource AccentBrush}"
+                                   StrokeThickness="14"
+                                   StrokeStartLineCap="Round"
+                                   StrokeEndLineCap="Round" />
+
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="{Binding RemainingText}"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           FontSize="52"
+                           FontWeight="Light"
+                           HorizontalAlignment="Center" />
+
+                <TextBlock Style="{StaticResource LabelTextStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0,2,0,0"
+                           Text="minutos restantes"
+                           Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" />
+
+                <TextBlock Style="{StaticResource LabelTextStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0,2,0,0"
+                           Text="listo para empezar"
+                           Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}" />
+
+                <Border Margin="0,12,0,0"
+                        Padding="10,4"
+                        CornerRadius="10"
+                        HorizontalAlignment="Center"
+                        Background="{StaticResource SurfaceRaisedBrush}"
+                        Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding BlockedDistractions}"
+                                   Foreground="{StaticResource WarningBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="12" />
+                        <TextBlock Text=" distracciones bloqueadas"
+                                   Style="{StaticResource LabelTextStyle}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- Duration and strict mode -->
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,24,0,0"
+                    IsEnabled="{Binding CanEditSettings}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <ItemsControl ItemsSource="{Binding Presets}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type viewModels:DurationPreset}">
+                            <Button Content="{Binding Label}"
+                                    Command="{Binding DataContext.SelectPresetCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource ChipButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBox Text="{Binding SelectedMinutes, UpdateSourceTrigger=PropertyChanged}"
+                         Width="64"
+                         Margin="8,0,0,0"
+                         TextAlignment="Center"
+                         ToolTip="Minutos personalizados"
+                         AutomationProperties.Name="Minutos" />
+                <TextBlock Text="min" Style="{StaticResource LabelTextStyle}"
+                           VerticalAlignment="Center" Margin="8,0,0,0" />
+            </StackPanel>
+
+            <CheckBox IsChecked="{Binding IsStrict}"
+                      Margin="0,18,0,0"
+                      HorizontalAlignment="Center"
+                      Content="Sesión estricta: no se puede cancelar ni cerrar la app hasta terminar" />
+        </StackPanel>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,22,0,0">
+            <Button Content="Iniciar concentración"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Command="{Binding StartCommand}"
+                    Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}" />
+
+            <Button Content="Cancelar sesión"
+                    Style="{StaticResource DangerButtonStyle}"
+                    Command="{Binding CancelCommand}"
+                    Visibility="{Binding CanCancel, Converter={StaticResource BoolToVisibility}}" />
+
+            <Border Style="{StaticResource CardStyle}"
+                    Padding="18,10"
+                    Visibility="{Binding IsStrictRunning, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="Sesión estricta en curso" Style="{StaticResource LabelTextStyle}" />
+            </Border>
+        </StackPanel>
+
+        <!-- Footer messages -->
+        <StackPanel Grid.Row="4" Margin="0,18,0,0" HorizontalAlignment="Center">
+            <TextBlock Text="{Binding TodaySummary}"
+                       Style="{StaticResource LabelTextStyle}"
+                       HorizontalAlignment="Center" />
+
+            <TextBlock Text="{Binding LastResult}"
+                       Style="{StaticResource LabelTextStyle}"
+                       Foreground="{StaticResource SuccessBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="0,6,0,0" />
+
+            <TextBlock Text="{Binding Warning}"
+                       Style="{StaticResource SubtitleTextStyle}"
+                       Foreground="{StaticResource WarningBrush}"
+                       MaxWidth="520"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Margin="0,6,0,0" />
+        </StackPanel>
+    </Grid>
+</UserControl>

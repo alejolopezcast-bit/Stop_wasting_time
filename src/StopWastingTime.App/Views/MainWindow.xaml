@@ -1,0 +1,150 @@
+<Window x:Class="StopWastingTime.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
+        xmlns:views="clr-namespace:StopWastingTime.App.Views"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewModels:ShellViewModel}"
+        Title="Stop Wasting Time"
+        Icon="../Assets/app.ico"
+        Height="760"
+        Width="1080"
+        MinHeight="640"
+        MinWidth="940"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource SurfaceBrush}"
+        TextOptions.TextFormattingMode="Ideal">
+
+    <Window.Resources>
+        <!-- Each screen is a view model; these templates decide how one is drawn. -->
+        <DataTemplate DataType="{x:Type viewModels:FocusViewModel}">
+            <views:FocusView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:UltraFocusViewModel}">
+            <views:UltraFocusView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:BlocklistViewModel}">
+            <views:BlocklistView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:StatsViewModel}">
+            <views:StatsView />
+        </DataTemplate>
+
+        <!-- A navigation entry, highlighted while its screen is the one on show. -->
+        <Style x:Key="NavButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+            <Setter Property="Padding" Value="16,11" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="212" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Navigation rail -->
+        <Border Grid.Column="0" Background="{StaticResource SurfaceSunkenBrush}" Padding="16,20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4,0,0,24">
+                    <Image Source="../Assets/logo.png" Width="30" Height="30" />
+                    <TextBlock Text="Stop Wasting&#x0a;Time"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               LineHeight="17"
+                               Margin="10,0,0,0"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="1">
+                    <Button Command="{Binding ShowFocusCommand}" Content="Enfoque">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsFocusSelected}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Command="{Binding ShowUltraCommand}" Content="Enfoque ultra">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsUltraSelected}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Command="{Binding ShowBlocklistCommand}" Content="Bloqueos">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsBlocklistSelected}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Command="{Binding ShowStatsCommand}" Content="Estadísticas">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsStatsSelected}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+
+                <!-- Session badge -->
+                <Border Grid.Row="3"
+                        Style="{StaticResource CardStyle}"
+                        Padding="14,12"
+                        Visibility="{Binding IsSessionRunning, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <TextBlock Text="Sesión en curso" Style="{StaticResource LabelTextStyle}" />
+                        <TextBlock Text="{Binding RemainingText}"
+                                   Style="{StaticResource ValueTextStyle}"
+                                   FontSize="20"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Current screen -->
+        <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" />
+    </Grid>
+</Window>
