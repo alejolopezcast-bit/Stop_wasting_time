@@ -1,0 +1,162 @@
+<UserControl x:Class="StopWastingTime.App.Views.BlocklistView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:BlocklistViewModel}"
+             d:DesignHeight="640"
+             d:DesignWidth="860">
+
+    <UserControl.Resources>
+        <!-- One row of either list: a switch, the name, and a way to take it off the list. -->
+        <DataTemplate x:Key="RuleTemplate" DataType="{x:Type viewModels:BlockRuleViewModel}">
+            <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <CheckBox Grid.Column="0" IsChecked="{Binding IsEnabled}" VerticalAlignment="Center"
+                          AutomationProperties.Name="{Binding DisplayName}" />
+
+                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource ValueTextStyle}" />
+                    <TextBlock Text="{Binding Subtitle}" Style="{StaticResource LabelTextStyle}" />
+                </StackPanel>
+
+                <Button Grid.Column="2"
+                        Content="Quitar"
+                        Style="{StaticResource IconButtonStyle}"
+                        VerticalAlignment="Center"
+                        Command="{Binding DataContext.RemoveCommand,
+                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding}"
+                        AutomationProperties.Name="{Binding DisplayName, StringFormat='Quitar {0}'}" />
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Margin="32,28,32,28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Bloqueos" Style="{StaticResource TitleTextStyle}" />
+
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="3"
+                   Style="{StaticResource SubtitleTextStyle}"
+                   Margin="0,6,0,18"
+                   Text="Lo que esté activado acá se bloquea mientras dure una sesión. Fuera de la sesión no se toca nada." />
+
+        <!-- Apps -->
+        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Apps" Style="{StaticResource SectionTextStyle}" />
+
+                <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                    <TextBlock Text="Programas abiertos ahora" Style="{StaticResource LabelTextStyle}" />
+
+                    <ListBox ItemsSource="{Binding DetectedProcesses}"
+                             SelectedItem="{Binding SelectedProcess}"
+                             Height="150"
+                             Margin="0,6,0,0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type viewModels:RunningProcessViewModel}">
+                                <TextBlock Text="{Binding DisplayName}" FontSize="13" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="Agregar seleccionado" Command="{Binding AddSelectedProcessCommand}" />
+                        <Button Content="Actualizar lista" Margin="8,0,0,0"
+                                Command="{Binding RefreshProcessesCommand}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <Grid Grid.Row="2" Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+                             Text="{Binding NewAppName, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Nombre del ejecutable, por ejemplo steam"
+                             AutomationProperties.Name="Nombre de la app" />
+                    <Button Grid.Column="1" Content="Agregar" Margin="8,0,0,0"
+                            Command="{Binding AddAppCommand}"
+                            AutomationProperties.Name="Agregar app" />
+                </Grid>
+
+                <ScrollViewer Grid.Row="3" Margin="0,16,0,0" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Apps}" ItemTemplate="{StaticResource RuleTemplate}" />
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- Sites -->
+        <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Sitios" Style="{StaticResource SectionTextStyle}" />
+
+                <TextBlock Grid.Row="1"
+                           Margin="0,10,0,0"
+                           Style="{StaticResource LabelTextStyle}"
+                           TextWrapping="Wrap"
+                           Text="Se bloquea el dominio, no el navegador: podés seguir trabajando con el resto de la web." />
+
+                <Grid Grid.Row="2" Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+                             Text="{Binding NewSiteDomain, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Dominio, por ejemplo instagram.com"
+                             AutomationProperties.Name="Dominio del sitio" />
+                    <Button Grid.Column="1" Content="Agregar" Margin="8,0,0,0"
+                            Command="{Binding AddSiteCommand}"
+                            AutomationProperties.Name="Agregar sitio" />
+                </Grid>
+
+                <ScrollViewer Grid.Row="3" Margin="0,16,0,0" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Sites}" ItemTemplate="{StaticResource RuleTemplate}" />
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <TextBlock Grid.Row="2" Grid.ColumnSpan="3"
+                   Text="{Binding Error}"
+                   Style="{StaticResource LabelTextStyle}"
+                   Foreground="{StaticResource DangerBrush}"
+                   VerticalAlignment="Bottom"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,-22" />
+    </Grid>
+</UserControl>

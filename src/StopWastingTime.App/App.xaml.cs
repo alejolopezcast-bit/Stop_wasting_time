@@ -1,26 +1,31 @@
+using System.IO;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StopWastingTime.App.Infrastructure;
+using StopWastingTime.App.ViewModels;
+using StopWastingTime.App.Views;
 using StopWastingTime.Core;
+using StopWastingTime.Core.Blocking;
 using StopWastingTime.Core.Data;
 using StopWastingTime.Core.Models;
+using StopWastingTime.Core.Sessions;
 using StopWastingTime.Core.Stats;
 
 namespace StopWastingTime.App;
 
 /// <summary>
-/// Application entry point. It refuses to run twice, wires up services, prepares the database and only
-/// then opens a window, so the first thing the user sees already reflects a working install.
+/// Application entry point. It refuses to run twice, wires up services, prepares the database, cleans up
+/// after any previous crash, and only then opens the launcher window.
 /// </summary>
 public partial class App : Application
 {
     private readonly SingleInstanceGuard _singleInstance = new();
 
     private IHost? _host;
+    private string? _remainingText;
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -54,9 +59,9 @@ public partial class App : Application
                 report.AppRules,
                 report.SiteRules);
 
-            var window = new MainWindow { DataContext = report };
-            MainWindow = window;
-            window.Show();
+            var launcher = new LauncherWindow(report, () => _host.Services.GetRequiredService<MainWindow>());
+            MainWindow = launcher;
+            launcher.Show();
         }
         catch (Exception exception)
         {
@@ -66,9 +71,24 @@ public partial class App : Application
         }
     }
 
-    protected override void OnExit(ExitEventArgs e)
+    protected override async void OnExit(ExitEventArgs e)
     {
-        _host?.Dispose();
+        if (_host is not null)
+        {
+            try
+            {
+                // Leaving the machine blocked after the app closes would be the worst possible bug.
+                await _host.Services.GetRequiredService<BlockingCoordinator>().ReleaseAsync().ConfigureAwait(true);
+            }
+            catch (Exception exception)
+            {
+                _host.Services.GetRequiredService<ILogger<App>>()
+                    .LogError(exception, "Could not release the blocking on exit.");
+            }
+
+            _host.Dispose();
+        }
+
         _singleInstance.Dispose();
         base.OnExit(e);
     }
@@ -80,6 +100,11 @@ public partial class App : Application
 
         await services.GetRequiredService<DatabaseInitializer>().InitializeAsync().ConfigureAwait(true);
 
+        // Closes sessions a crash left open and takes any leftover block off the hosts file.
+        await services.GetRequiredService<FocusSessionService>().RecoverAsync().ConfigureAwait(true);
+
+        WireBlockNotifications(services);
+
         var rules = await services.GetRequiredService<BlockRuleRepository>().GetAllAsync().ConfigureAwait(true);
 
         return new StartupReport(
@@ -87,8 +112,43 @@ public partial class App : Application
             IsElevated: ElevationHelper.IsElevated(),
             DatabasePath: AppPaths.DatabaseFile,
             LogPath: AppPaths.LogFile,
+            ExecutablePath: ResolveExecutablePath(),
             AppRules: rules.Count(rule => rule.Kind == BlockKind.Process),
             SiteRules: rules.Count(rule => rule.Kind == BlockKind.Website));
+    }
+
+    /// <summary>
+    /// A blocked app is closed from a background sweep, so the notice has to be marshalled onto the UI
+    /// thread before a window can be shown.
+    /// </summary>
+    private void WireBlockNotifications(IServiceProvider services)
+    {
+        var sessions = services.GetRequiredService<FocusSessionService>();
+        sessions.Progressed += (_, progress) => _remainingText = progress.RemainingText;
+
+        services.GetRequiredService<BlockingCoordinator>().Blocked += (_, blocked) =>
+            Dispatcher.Invoke(() => BlockToastWindow.ShowFor(blocked.DisplayName, _remainingText));
+    }
+
+    /// <summary>
+    /// The manifested executable that Windows will elevate. When the app is started through
+    /// <c>dotnet StopWastingTime.dll</c> the running process is dotnet, so the executable is found next
+    /// to the assembly instead of through the current process.
+    /// </summary>
+    private static string ResolveExecutablePath()
+    {
+        var assemblyPath = Assembly.GetEntryAssembly()?.Location;
+
+        if (!string.IsNullOrEmpty(assemblyPath))
+        {
+            var candidate = Path.ChangeExtension(assemblyPath, ".exe");
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return Environment.ProcessPath ?? string.Empty;
     }
 
     private static IHost BuildHost()
@@ -99,12 +159,33 @@ public partial class App : Application
         builder.Logging.AddProvider(new FileLoggerProvider(AppPaths.LogFile));
         builder.Logging.SetMinimumLevel(LogLevel.Information);
 
+        builder.Services.AddSingleton(TimeProvider.System);
+
+        // Storage
         builder.Services.AddSingleton(_ => new SqliteConnectionFactory());
         builder.Services.AddSingleton<DatabaseInitializer>();
         builder.Services.AddSingleton<SessionRepository>();
         builder.Services.AddSingleton<BlockRuleRepository>();
         builder.Services.AddSingleton<BlockHitRepository>();
         builder.Services.AddSingleton<StatsService>();
+
+        // Blocking. Both blockers are also resolved on their own, so the UI can ask the hosts blocker
+        // whether it ran into trouble.
+        builder.Services.AddSingleton<IProcessScanner, SystemProcessScanner>();
+        builder.Services.AddSingleton<IHostsFileAccess, SystemHostsFileAccess>();
+        builder.Services.AddSingleton<ProcessBlocker>();
+        builder.Services.AddSingleton<HostsFileBlocker>();
+        builder.Services.AddSingleton<IBlocker>(services => services.GetRequiredService<ProcessBlocker>());
+        builder.Services.AddSingleton<IBlocker>(services => services.GetRequiredService<HostsFileBlocker>());
+        builder.Services.AddSingleton<BlockingCoordinator>();
+
+        // Sessions and screens
+        builder.Services.AddSingleton<FocusSessionService>();
+        builder.Services.AddSingleton<FocusViewModel>();
+        builder.Services.AddSingleton<BlocklistViewModel>();
+        builder.Services.AddSingleton<StatsViewModel>();
+        builder.Services.AddSingleton<ShellViewModel>();
+        builder.Services.AddTransient<MainWindow>();
 
         return builder.Build();
     }

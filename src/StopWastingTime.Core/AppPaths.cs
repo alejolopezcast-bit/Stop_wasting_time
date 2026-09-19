@@ -3,10 +3,14 @@ namespace StopWastingTime.Core;
 /// <summary>Where the app keeps its data on disk.</summary>
 public static class AppPaths
 {
-    /// <summary>%LOCALAPPDATA%\StopWastingTime</summary>
-    public static string DataDirectory { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "StopWastingTime");
+    /// <summary>
+    /// Environment variable that moves the whole data directory somewhere else. Useful for trying the
+    /// app against a throwaway profile, and for keeping it on a portable drive.
+    /// </summary>
+    public const string DataDirectoryVariable = "SWT_DATA_DIR";
+
+    /// <summary>%LOCALAPPDATA%\StopWastingTime, unless SWT_DATA_DIR says otherwise.</summary>
+    public static string DataDirectory { get; } = ResolveDataDirectory();
 
     public static string DatabaseFile => Path.Combine(DataDirectory, "stopwastingtime.db");
 
@@ -21,4 +25,15 @@ public static class AppPaths
         "drivers", "etc", "hosts");
 
     public static void EnsureDataDirectory() => Directory.CreateDirectory(DataDirectory);
+
+    private static string ResolveDataDirectory()
+    {
+        var overridden = Environment.GetEnvironmentVariable(DataDirectoryVariable);
+
+        return string.IsNullOrWhiteSpace(overridden)
+            ? Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "StopWastingTime")
+            : Path.GetFullPath(overridden.Trim());
+    }
 }
