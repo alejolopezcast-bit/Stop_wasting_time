@@ -196,6 +196,57 @@ public class FocusSessionServiceTests
     }
 
     [Fact]
+    public async Task An_ordinary_session_only_blocks_the_rules_that_are_switched_on()
+    {
+        using var database = await TestDatabase.CreateAsync();
+        await database.Rules.AddAsync(NewRule("chosen", enabled: true));
+        await database.Rules.AddAsync(NewRule("ignored", enabled: false));
+
+        var (service, blocker) = Create(database, new FakeClock(Start));
+        await service.StartAsync(25, isStrict: false);
+
+        Assert.Contains(blocker.LastRules, rule => rule.Value == "chosen");
+        Assert.DoesNotContain(blocker.LastRules, rule => rule.Value == "ignored");
+    }
+
+    [Fact]
+    public async Task An_ultra_session_blocks_the_whole_list_including_what_is_switched_off()
+    {
+        // The point of ultra focus: nothing on the list is left as an escape hatch.
+        using var database = await TestDatabase.CreateAsync();
+        await database.Rules.AddAsync(NewRule("chosen", enabled: true));
+        await database.Rules.AddAsync(NewRule("switched-off", enabled: false));
+
+        var (service, blocker) = Create(database, new FakeClock(Start));
+        await service.StartAsync(60, isStrict: true, "Ultra", blockEverything: true);
+
+        var switchedOff = blocker.LastRules.Single(rule => rule.Value == "switched-off");
+        Assert.Contains(blocker.LastRules, rule => rule.Value == "chosen");
+        Assert.True(switchedOff.IsEnabled, "a rule that was off has to arrive enabled, or the blocker skips it");
+    }
+
+    [Fact]
+    public async Task An_ultra_session_cannot_be_abandoned_and_keeps_blocking()
+    {
+        using var database = await TestDatabase.CreateAsync();
+        var (service, blocker) = Create(database, new FakeClock(Start));
+
+        await service.StartAsync(60, isStrict: true, "Ultra", blockEverything: true);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.AbortAsync());
+        Assert.True(service.IsRunning);
+        Assert.Equal(0, blocker.ReleaseCount);
+    }
+
+    private static BlockRule NewRule(string value, bool enabled) => new()
+    {
+        Kind = BlockKind.Process,
+        Value = value,
+        DisplayName = value,
+        IsEnabled = enabled
+    };
+
+    [Fact]
     public async Task Session_events_come_back_on_the_thread_the_service_was_built_on()
     {
         // The UI subscribes to these events and touches windows and observable collections, which only
@@ -249,11 +300,15 @@ public class FocusSessionServiceTests
 
         public int ReleaseCount { get; private set; }
 
+        /// <summary>The rules handed over the last time the blocking was applied.</summary>
+        public IReadOnlyList<BlockRule> LastRules { get; private set; } = [];
+
         public event EventHandler<BlockedEventArgs>? Blocked;
 
         public Task ApplyAsync(IReadOnlyList<BlockRule> rules, CancellationToken cancellationToken = default)
         {
             ApplyCount++;
+            LastRules = rules;
             return Task.CompletedTask;
         }
 

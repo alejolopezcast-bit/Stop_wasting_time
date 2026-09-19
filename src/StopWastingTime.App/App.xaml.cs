@@ -126,6 +126,10 @@ public partial class App : Application
         var sessions = services.GetRequiredService<FocusSessionService>();
         sessions.Progressed += (_, progress) => _remainingText = progress.RemainingText;
 
+        // Built here, on the UI thread, and kept alive for the life of the app: it owns the one timer
+        // that advances whichever session is running.
+        services.GetRequiredService<SessionTicker>();
+
         services.GetRequiredService<BlockingCoordinator>().Blocked += (_, blocked) =>
             Dispatcher.Invoke(() => BlockToastWindow.ShowFor(blocked.DisplayName, _remainingText));
     }
@@ -181,7 +185,10 @@ public partial class App : Application
 
         // Sessions and screens
         builder.Services.AddSingleton<FocusSessionService>();
+        builder.Services.AddSingleton<SessionTicker>();
+        builder.Services.AddSingleton<IDialogService, DialogService>();
         builder.Services.AddSingleton<FocusViewModel>();
+        builder.Services.AddSingleton<UltraFocusViewModel>();
         builder.Services.AddSingleton<BlocklistViewModel>();
         builder.Services.AddSingleton<StatsViewModel>();
         builder.Services.AddSingleton<ShellViewModel>();

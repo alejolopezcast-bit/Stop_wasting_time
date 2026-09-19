@@ -23,6 +23,10 @@
             <views:FocusView />
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type viewModels:UltraFocusViewModel}">
+            <views:UltraFocusView />
+        </DataTemplate>
+
         <DataTemplate DataType="{x:Type viewModels:BlocklistViewModel}">
             <views:BlocklistView />
         </DataTemplate>
@@ -84,6 +88,19 @@
                         </Button.Style>
                     </Button>
 
+                    <Button Command="{Binding ShowUltraCommand}" Content="Enfoque ultra">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsUltraSelected}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
                     <Button Command="{Binding ShowBlocklistCommand}" Content="Bloqueos">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
@@ -118,7 +135,7 @@
                         Visibility="{Binding IsSessionRunning, Converter={StaticResource BoolToVisibility}}">
                     <StackPanel>
                         <TextBlock Text="Sesión en curso" Style="{StaticResource LabelTextStyle}" />
-                        <TextBlock Text="{Binding Focus.RemainingText}"
+                        <TextBlock Text="{Binding RemainingText}"
                                    Style="{StaticResource ValueTextStyle}"
                                    FontSize="20"
                                    Margin="0,4,0,0" />

@@ -67,10 +67,15 @@ public sealed class FocusSessionService
 
     public event EventHandler<FocusSession>? SessionEnded;
 
+    /// <param name="blockEverything">
+    /// Enforces every rule on the list, including the ones switched off. This is what an ultra session
+    /// means: nothing is left on the list as an escape hatch.
+    /// </param>
     public async Task<FocusSession> StartAsync(
         int plannedMinutes,
         bool isStrict,
         string? label = null,
+        bool blockEverything = false,
         CancellationToken cancellationToken = default)
     {
         if (IsRunning)
@@ -105,14 +110,28 @@ public sealed class FocusSessionService
         Current = session;
         BlockedDistractions = 0;
 
-        var rules = await _rules.GetEnabledAsync(cancellationToken).ConfigureAwait(false);
+        var rules = blockEverything
+            ? await _rules.GetAllAsync(cancellationToken).ConfigureAwait(false)
+            : await _rules.GetEnabledAsync(cancellationToken).ConfigureAwait(false);
+
+        // An ultra session takes the list as it stands, switches included, so ApplyAsync sees every rule
+        // as enabled.
+        if (blockEverything)
+        {
+            foreach (var rule in rules)
+            {
+                rule.IsEnabled = true;
+            }
+        }
+
         await _blocking.ApplyAsync(rules, session.Id, cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
-            "Session {Id} started: {Minutes} minutes, strict: {Strict}.",
+            "Session {Id} started: {Minutes} minutes, strict: {Strict}, everything blocked: {Everything}.",
             session.Id,
             plannedMinutes,
-            isStrict);
+            isStrict,
+            blockEverything);
 
         Raise(() => SessionStarted?.Invoke(this, session));
         Raise(() => Progressed?.Invoke(this, BuildProgress(session)));

@@ -1,4 +1,3 @@
-using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StopWastingTime.Core.Blocking;
@@ -13,7 +12,6 @@ public partial class FocusViewModel : ObservableObject
     private readonly FocusSessionService _sessions;
     private readonly StatsService _stats;
     private readonly HostsFileBlocker _hostsBlocker;
-    private readonly DispatcherTimer _timer;
 
     [ObservableProperty]
     private int _selectedMinutes = 25;
@@ -48,17 +46,13 @@ public partial class FocusViewModel : ObservableObject
         _stats = stats;
         _hostsBlocker = hostsBlocker;
 
-        // Built before the handlers below capture it: one tick a second drives the countdown, and the
-        // service works out the real elapsed time from the clock, so a late tick cannot stretch the
-        // session.
-        _timer = new DispatcherTimer(DispatcherPriority.Normal)
-        {
-            Interval = TimeSpan.FromSeconds(1)
-        };
-        _timer.Tick += async (_, _) => await _sessions.TickAsync();
-
         _sessions.Progressed += (_, progress) =>
         {
+            if (!IsRunning)
+            {
+                return;
+            }
+
             RemainingText = progress.RemainingText;
             ProgressFraction = progress.Fraction;
             BlockedDistractions = progress.BlockedDistractions;
@@ -66,8 +60,12 @@ public partial class FocusViewModel : ObservableObject
 
         _sessions.SessionEnded += async (_, session) =>
         {
+            if (!IsRunning)
+            {
+                return;
+            }
+
             IsRunning = false;
-            _timer.Stop();
             ProgressFraction = 0;
             RemainingText = FormatMinutes(SelectedMinutes);
             LastResult = session.Status == Core.Models.SessionStatus.Completed
@@ -123,7 +121,6 @@ public partial class FocusViewModel : ObservableObject
 
         IsRunning = true;
         BlockedDistractions = 0;
-        _timer.Start();
 
         // The apps are blocked either way; only the site blocking needs administrator rights.
         Warning = _hostsBlocker.LastError;

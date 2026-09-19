@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using Microsoft.Extensions.Logging;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using H.NotifyIcon;
@@ -8,17 +9,24 @@ using StopWastingTime.App.ViewModels;
 namespace StopWastingTime.App.Views;
 
 /// <summary>
-/// The app proper: the three screens, the tray icon, and the rules about closing. A running session
-/// sends the window to the tray instead of exiting, and a strict session refuses to let go at all.
+/// The app proper: the screens, the tray icon, and the rules about closing. Closing the window only
+/// sends the app to the tray, because a blocker that stops blocking the moment the window is in the way
+/// is not a blocker. Leaving for real is the Salir entry in the tray menu, and a strict or ultra session
+/// refuses even that until the time is up.
 /// </summary>
 public partial class MainWindow : Window
 {
     private readonly ShellViewModel _shell;
-    private TaskbarIcon? _trayIcon;
+    private readonly ILogger<MainWindow> _logger;
 
-    public MainWindow(ShellViewModel shell)
+    private TaskbarIcon? _trayIcon;
+    private bool _isExiting;
+    private bool _explainedTheTray;
+
+    public MainWindow(ShellViewModel shell, ILogger<MainWindow> logger)
     {
         _shell = shell;
+        _logger = logger;
         DataContext = shell;
 
         InitializeComponent();
@@ -56,6 +64,11 @@ public partial class MainWindow : Window
 
         _trayIcon.TrayLeftMouseUp += (_, _) => RestoreWindow();
 
+        // A tray icon built in code is never added to a visual tree, so nothing creates it. Without this
+        // the icon simply does not appear, and since closing the window hides the app, that would leave
+        // it running with no way back.
+        _trayIcon.ForceCreate();
+
         _shell.PropertyChanged += (_, args) =>
         {
             if (args.PropertyName != nameof(ShellViewModel.TrayTooltip))
@@ -80,6 +93,7 @@ public partial class MainWindow : Window
         Activate();
     }
 
+    /// <summary>The only way out, and it is refused while a session has promised otherwise.</summary>
     private void TryExit()
     {
         if (_shell.IsStrictSessionRunning)
@@ -87,44 +101,59 @@ public partial class MainWindow : Window
             RestoreWindow();
             MessageBox.Show(
                 this,
-                "Hay una sesión estricta en curso. La app no se puede cerrar hasta que termine.",
+                "Hay una sesión sin cancelación en curso. La app no se puede cerrar hasta que termine.",
                 "Stop Wasting Time",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             return;
         }
 
+        _isExiting = true;
         Application.Current.Shutdown();
     }
 
     protected override void OnClosing(CancelEventArgs e)
     {
-        if (_shell.IsStrictSessionRunning)
+        if (_isExiting)
         {
-            e.Cancel = true;
-            MessageBox.Show(
-                this,
-                "Elegiste una sesión estricta: la app no se cierra hasta que termine el tiempo.",
-                "Stop Wasting Time",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            base.OnClosing(e);
             return;
         }
+
+        // Closing the window never ends the app: it goes to the tray and keeps working. During a session
+        // that is what keeps the blocking alive, and outside one it keeps the app a click away.
+        e.Cancel = true;
+        Hide();
 
         if (_shell.IsSessionRunning)
         {
-            // An ordinary session keeps running in the tray: closing the window should not quietly
-            // unblock everything.
-            e.Cancel = true;
-            Hide();
-            _trayIcon?.ShowNotification(
-                "Stop Wasting Time",
-                "La sesión sigue corriendo. La app queda en la bandeja del sistema.");
+            Notify("La sesión sigue corriendo. La app queda en la bandeja del sistema.");
             return;
         }
 
-        base.OnClosing(e);
-        Application.Current.Shutdown();
+        if (!_explainedTheTray)
+        {
+            // Said once: after that, someone who closes the window knows where it went.
+            Notify("La app queda en la bandeja. Para cerrarla del todo, usá Salir en el menú del ícono.");
+        }
+    }
+
+    /// <summary>
+    /// A balloon tip, if Windows is willing. Notifications are suppressed by focus assist and by policy,
+    /// and none of that is a reason to stop the window from closing.
+    /// </summary>
+    private void Notify(string message)
+    {
+        _explainedTheTray = true;
+
+        try
+        {
+            _trayIcon?.ShowNotification("Stop Wasting Time", message);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(exception, "Could not show the tray notification.");
+        }
     }
 
     protected override void OnClosed(EventArgs e)
