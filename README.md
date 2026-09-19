@@ -1,4 +1,4 @@
- Stop Wasting Time
+# Stop Wasting Time
 
 A Windows desktop app that closes the apps and blocks the sites that distract you for as long as you
 decide to concentrate, and then shows you how often you actually did it.
@@ -188,3 +188,7 @@ powershell -ExecutionPolicy Bypass -File scripts/generate-icon.ps1
 - Scheduled sessions at fixed times of day.
 - Exporting the statistics.
 - An installer, so it does not have to be published by hand.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
