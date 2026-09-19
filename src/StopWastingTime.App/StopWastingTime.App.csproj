@@ -1,4 +1,33 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+
+    <!-- The launcher: StopWastingTime.exe, elevated, with its own icon. -->
+    <AssemblyName>StopWastingTime</AssemblyName>
+    <RootNamespace>StopWastingTime.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+
+    <Product>Stop Wasting Time</Product>
+    <AssemblyTitle>Stop Wasting Time</AssemblyTitle>
+    <Company>Stop Wasting Time</Company>
+    <Version>0.1.0</Version>
+
+    <!-- Self-contained single-file publishing is driven by scripts/publish.ps1, so day to day
+         builds stay fast and framework dependent. -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Also embedded as a resource so the window and, later, the tray icon can show it. -->
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\StopWastingTime.Core\StopWastingTime.Core.csproj" />
@@ -9,13 +38,5 @@
     <PackageReference Include="H.NotifyIcon.Wpf" Version="2.4.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
 
 </Project>

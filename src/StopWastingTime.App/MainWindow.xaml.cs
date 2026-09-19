@@ -1,23 +1,27 @@
-﻿using System.Text;
+using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using StopWastingTime.Core;
 
 namespace StopWastingTime.App;
 
 /// <summary>
-/// Interaction logic for MainWindow.xaml
+/// Startup screen. It reports what the launcher set up, so a launch that half worked is obvious rather
+/// than silent. The focus, blocklist and statistics screens replace this content later.
 /// </summary>
 public partial class MainWindow : Window
 {
-    public MainWindow()
+    public MainWindow() => InitializeComponent();
+
+    private void OnOpenDataFolderClick(object sender, RoutedEventArgs e)
     {
-        InitializeComponent();
+        AppPaths.EnsureDataDirectory();
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = AppPaths.DataDirectory,
+            UseShellExecute = true
+        });
     }
+
+    private void OnCloseClick(object sender, RoutedEventArgs e) => Close();
 }
