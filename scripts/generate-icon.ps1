@@ -1,11 +1,14 @@
 <#
 .SYNOPSIS
-    Draws the Stop Wasting Time application icon and writes src/StopWastingTime.App/Assets/app.ico.
+    Draws the Stop Wasting Time application icon: Assets/app.ico for Windows, Assets/logo.png for the UI.
 
 .DESCRIPTION
     The icon is generated instead of checked in as an opaque binary, so the shape and the palette stay
     editable and reviewable. It draws a dark rounded tile, an accent coloured timer ring with a gap, and
-    a white stop square in the middle, then packs 16/32/48/64/128/256 px PNG frames into a single .ico.
+    a white stop square in the middle, then packs 16/32/48/64/96/128/256 px PNG frames into a single .ico.
+
+    The window and the tray need an .ico, while WPF renders a PNG far more sharply inside the app, so
+    both come out of the same drawing code.
 
     Run it after changing the palette:  powershell -ExecutionPolicy Bypass -File scripts/generate-icon.ps1
 #>
@@ -84,7 +87,7 @@ function New-IconFrame {
     return ,$stream.ToArray()
 }
 
-$sizes = @(16, 32, 48, 64, 128, 256)
+$sizes = @(16, 32, 48, 64, 96, 128, 256)
 $frames = @{}
 foreach ($size in $sizes) {
     $frames[$size] = New-IconFrame -Size $size
@@ -132,3 +135,8 @@ finally {
 
 $resolved = (Resolve-Path $OutputPath).Path
 Write-Host "Icon written to $resolved ($((Get-Item $resolved).Length) bytes)"
+
+# The same artwork as a PNG: WPF scales an .ico frame poorly, so the in app logo uses this instead.
+$pngPath = Join-Path (Split-Path -Parent $resolved) 'logo.png'
+[System.IO.File]::WriteAllBytes($pngPath, [byte[]] $frames[256])
+Write-Host "Logo written to $pngPath ($((Get-Item $pngPath).Length) bytes)"
