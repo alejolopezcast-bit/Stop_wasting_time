@@ -15,13 +15,19 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty]
     private string _trayTooltip = "Stop Wasting Time";
 
+    /// <summary>The countdown for the badge in the rail, whichever screen started the session.</summary>
+    [ObservableProperty]
+    private string _remainingText = "00:00";
+
     public ShellViewModel(
         FocusViewModel focus,
+        UltraFocusViewModel ultra,
         BlocklistViewModel blocklist,
         StatsViewModel stats,
         FocusSessionService sessions)
     {
         Focus = focus;
+        Ultra = ultra;
         Blocklist = blocklist;
         Stats = stats;
         _sessions = sessions;
@@ -37,10 +43,15 @@ public partial class ShellViewModel : ObservableObject
         };
 
         _sessions.Progressed += (_, progress) =>
+        {
+            RemainingText = progress.RemainingText;
             TrayTooltip = $"Quedan {progress.RemainingText} de concentración";
+        };
     }
 
     public FocusViewModel Focus { get; }
+
+    public UltraFocusViewModel Ultra { get; }
 
     public BlocklistViewModel Blocklist { get; }
 
@@ -53,12 +64,22 @@ public partial class ShellViewModel : ObservableObject
 
     public bool IsFocusSelected => CurrentPage == Focus;
 
+    public bool IsUltraSelected => CurrentPage == Ultra;
+
     public bool IsBlocklistSelected => CurrentPage == Blocklist;
 
     public bool IsStatsSelected => CurrentPage == Stats;
 
     [RelayCommand]
     private void ShowFocus() => CurrentPage = Focus;
+
+    [RelayCommand]
+    private async Task ShowUltraAsync()
+    {
+        // The summary has to be current: the blocklist may have changed since the app started.
+        await Ultra.RefreshBlocklistSummaryAsync();
+        CurrentPage = Ultra;
+    }
 
     [RelayCommand]
     private async Task ShowBlocklistAsync()
@@ -79,6 +100,7 @@ public partial class ShellViewModel : ObservableObject
     {
         await Focus.RefreshTodayAsync();
         await Blocklist.LoadAsync();
+        await Ultra.RefreshBlocklistSummaryAsync();
         await Stats.RefreshAsync();
     }
 
@@ -91,6 +113,7 @@ public partial class ShellViewModel : ObservableObject
     partial void OnCurrentPageChanged(ObservableObject value)
     {
         OnPropertyChanged(nameof(IsFocusSelected));
+        OnPropertyChanged(nameof(IsUltraSelected));
         OnPropertyChanged(nameof(IsBlocklistSelected));
         OnPropertyChanged(nameof(IsStatsSelected));
     }

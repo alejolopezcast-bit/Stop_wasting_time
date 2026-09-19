@@ -15,6 +15,9 @@ session is recorded — per day, per week, per month and per year.
 - **Timed focus sessions.** 25, 45, 60 or 90 minutes, or any number you type in.
 - **Strict sessions.** An optional switch per session: while it runs the session cannot be cancelled and
   the app cannot be closed.
+- **Ultra focus.** A screen of its own for when the switch is not enough: you set the time, confirm once,
+  and there is no cancel button at all. It enforces the whole blocklist, including the entries you had
+  switched off, and the app refuses to quit until the clock runs out.
 - **App blocking.** Programs on your list are closed a second after they open, for as long as the session
   lasts. System processes are never touched, no matter what you put on the list.
 - **Site blocking.** Listed domains are pointed at `0.0.0.0` in the Windows hosts file while the session
@@ -23,14 +26,19 @@ session is recorded — per day, per week, per month and per year.
   often.
 - **Statistics.** Sessions completed, time focused, average session, current streak and blocked
   distractions, with a bar chart per period and a year heatmap.
-- **Tray icon.** Closing the window during a session sends the app to the tray instead of quietly
-  unblocking everything.
+- **Tray icon.** Closing the window never closes the app: it goes to the tray and keeps working, because
+  a blocker that stops blocking the moment the window is in the way is not a blocker. Leaving for real is
+  the Salir entry in the tray menu, and that is refused while an ultra or strict session runs.
 - **Crash recovery.** If the app is killed mid session, the next launch closes that session as abandoned
   and removes the hosts block, so a crash can never leave sites blocked forever.
 
-| Focus | Blocklist | Statistics |
-|---|---|---|
-| ![Focus screen](docs/focus.png) | ![Blocklist screen](docs/blocklist.png) | ![Statistics screen](docs/stats.png) |
+| Focus | Ultra focus |
+|---|---|
+| ![Focus screen](docs/focus.png) | ![Ultra focus screen](docs/ultra.png) |
+
+| Blocklist | Statistics |
+|---|---|
+| ![Blocklist screen](docs/blocklist.png) | ![Statistics screen](docs/stats.png) |
 
 ## Requirements
 
@@ -75,7 +83,9 @@ powershell -ExecutionPolicy Bypass -File scripts/create-shortcut.ps1
    so you do not have to know executable names, and you can also type one. Sites take anything you paste:
    `https://www.instagram.com/explore` becomes `instagram.com`.
 3. On **Enfoque**, choose a duration, optionally tick *sesión estricta*, and start.
-4. **Estadísticas** shows how it went, by day, week, month or year.
+4. **Enfoque ultra** is the same thing without an exit: it asks once, then blocks everything on the list
+   until the time is up. There is no cancel button, and the app will not quit.
+5. **Estadísticas** shows how it went, by day, week, month or year.
 
 ## How it works
 
@@ -109,6 +119,10 @@ FocusSessionService  ── starts/stops ──►  BlockingCoordinator
   focus. Completed and abandoned are counted separately.
 - **A streak survives today.** Not having focused yet today does not break it; the count ends yesterday,
   so a streak only dies after a full day without focus.
+- **An ultra session ignores the switches on the blocklist.** Every rule is applied, so nothing on the
+  list is left as an escape hatch. It is the one thing that separates it from an ordinary strict session.
+- **One timer drives whichever session is running.** It lives outside the screens, so a session started
+  on one of them keeps counting while you are looking at another.
 
 ## Project structure
 
@@ -121,7 +135,7 @@ StopWastingTime.slnx
 │  ├─ Sessions/                                        The session state machine
 │  └─ Stats/                                           Day/week/month/year aggregation
 ├─ src/StopWastingTime.App/           net10.0-windows  WPF user interface
-│  ├─ Views/                                           Launcher, shell, the three screens, toast
+│  ├─ Views/                                           Launcher, shell, the four screens, toast
 │  ├─ ViewModels/                                      One per screen, MVVM
 │  ├─ Controls/                                        The countdown ring
 │  ├─ Infrastructure/                                  Elevation, logging, single instance
@@ -180,6 +194,9 @@ powershell -ExecutionPolicy Bypass -File scripts/generate-icon.ps1
   tool, not a permanent filter.
 - **Administrator rights are all or nothing.** Without them the app blocks programs it has permission to
   close and tells you site blocking is off.
+- **An ultra session really cannot be stopped from inside the app.** Ending one early means killing the
+  process from Task Manager, and the next launch will unblock everything and record the session as
+  abandoned. Pick a duration you can live with.
 - **Windows only.** The blocking is built on the Windows process list and the Windows hosts file.
 
 ## Roadmap
