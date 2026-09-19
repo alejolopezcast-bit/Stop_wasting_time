@@ -8,8 +8,6 @@ your list simply will not open. Your browser keeps working: only the listed site
 can still look things up while you work. When the time is up everything comes back on its own, and the
 session is recorded — per day, per week, per month and per year.
 
-![The launcher](docs/launcher.png)
-
 ## Features
 
 - **Timed focus sessions.** 25, 45, 60 or 90 minutes, or any number you type in.
@@ -27,10 +25,6 @@ session is recorded — per day, per week, per month and per year.
   unblocking everything.
 - **Crash recovery.** If the app is killed mid session, the next launch closes that session as abandoned
   and removes the hosts block, so a crash can never leave sites blocked forever.
-
-| Focus | Blocklist | Statistics |
-|---|---|---|
-| ![Focus screen](docs/focus.png) | ![Blocklist screen](docs/blocklist.png) | ![Statistics screen](docs/stats.png) |
 
 ## Requirements
 
