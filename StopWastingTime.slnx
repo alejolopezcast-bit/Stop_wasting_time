@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StopWastingTime.App/StopWastingTime.App.csproj" />
+    <Project Path="src/StopWastingTime.Core/StopWastingTime.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/StopWastingTime.Core.Tests/StopWastingTime.Core.Tests.csproj" />
+  </Folder>
+</Solution>
