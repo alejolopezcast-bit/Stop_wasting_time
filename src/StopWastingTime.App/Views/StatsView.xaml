@@ -6,30 +6,20 @@
              xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewModels:StatsViewModel}"
-             d:DesignHeight="700"
+             d:DesignHeight="760"
              d:DesignWidth="880">
 
     <UserControl.Resources>
-        <!-- A period chip lights up when its period is the one being shown. -->
-        <Style x:Key="PeriodChipStyle" TargetType="Button" BasedOn="{StaticResource ChipButtonStyle}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
-                    <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
+        <!-- A headline number with its icon. Five of these sit across the top. -->
         <Style x:Key="KpiCardStyle" TargetType="Border" BasedOn="{StaticResource CardStyle}">
-            <Setter Property="Padding" Value="16,14" />
+            <Setter Property="Padding" Value="16,15" />
             <Setter Property="Margin" Value="0,0,12,0" />
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
-        <Grid Margin="32,28,24,28">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
+        <Grid Style="{StaticResource PageRootStyle}" Margin="34,26,26,26">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -41,7 +31,7 @@
             <Grid Grid.Row="0">
                 <StackPanel>
                     <TextBlock Text="Estadísticas" Style="{StaticResource TitleTextStyle}" />
-                    <TextBlock Text="{Binding RangeText}" Style="{StaticResource LabelTextStyle}" Margin="0,4,0,0" />
+                    <TextBlock Text="{Binding RangeText}" Style="{StaticResource SubtitleTextStyle}" Margin="0,4,0,0" />
                 </StackPanel>
 
                 <ItemsControl ItemsSource="{Binding Periods}" HorizontalAlignment="Right" VerticalAlignment="Top">
@@ -53,122 +43,166 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type viewModels:PeriodChip}">
                             <Button Content="{Binding Label}"
-                                    Style="{StaticResource PeriodChipStyle}"
+                                    Style="{StaticResource ChipButtonStyle}"
                                     Command="{Binding DataContext.SelectPeriodCommand,
                                                       RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="{Binding}" />
+                                    CommandParameter="{Binding}"
+                                    Background="{Binding IsSelected, Converter={StaticResource BoolToResource},
+                                                         ConverterParameter=AccentSoftBrush|SurfaceSunkenBrush}"
+                                    BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToResource},
+                                                          ConverterParameter=AccentBrush|BorderBrush}"
+                                    Foreground="{Binding IsSelected, Converter={StaticResource BoolToResource},
+                                                         ConverterParameter=AccentBrightBrush|TextSecondaryBrush}" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </Grid>
 
             <!-- Headline numbers -->
-            <UniformGrid Grid.Row="1" Rows="1" Columns="5" Margin="0,20,0,0">
+            <UniformGrid Grid.Row="1" Rows="1" Columns="5" Margin="0,22,0,0">
                 <Border Style="{StaticResource KpiCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Veces que te concentraste" Style="{StaticResource LabelTextStyle}"
-                                   TextWrapping="Wrap" />
+                        <Border Style="{StaticResource IconTileStyle}" HorizontalAlignment="Left">
+                            <Path Data="{StaticResource IconCheck}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource AccentBrightBrush}" />
+                        </Border>
                         <TextBlock Text="{Binding CompletedText}" Style="{StaticResource KpiValueTextStyle}"
-                                   Margin="0,6,0,0" />
+                                   Margin="0,12,0,0" />
+                        <TextBlock Text="VECES QUE TE CONCENTRASTE" Style="{StaticResource OverlineTextStyle}"
+                                   Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
 
                 <Border Style="{StaticResource KpiCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Tiempo enfocado" Style="{StaticResource LabelTextStyle}" TextWrapping="Wrap" />
+                        <Border Style="{StaticResource IconTileStyle}" HorizontalAlignment="Left">
+                            <Path Data="{StaticResource IconClock}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource AccentBrightBrush}" />
+                        </Border>
                         <TextBlock Text="{Binding FocusedText}" Style="{StaticResource KpiValueTextStyle}"
-                                   Margin="0,6,0,0" />
+                                   Margin="0,12,0,0" />
+                        <TextBlock Text="TIEMPO ENFOCADO" Style="{StaticResource OverlineTextStyle}"
+                                   Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
 
                 <Border Style="{StaticResource KpiCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Promedio por sesión" Style="{StaticResource LabelTextStyle}" TextWrapping="Wrap" />
+                        <Border Style="{StaticResource IconTileStyle}" HorizontalAlignment="Left">
+                            <Path Data="{StaticResource IconHourglass}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource AccentBrightBrush}" />
+                        </Border>
                         <TextBlock Text="{Binding AverageText}" Style="{StaticResource KpiValueTextStyle}"
-                                   Margin="0,6,0,0" />
+                                   Margin="0,12,0,0" />
+                        <TextBlock Text="PROMEDIO POR SESIÓN" Style="{StaticResource OverlineTextStyle}"
+                                   Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
 
                 <Border Style="{StaticResource KpiCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Racha de días" Style="{StaticResource LabelTextStyle}" TextWrapping="Wrap" />
+                        <Border Style="{StaticResource IconTileStyle}" Background="{StaticResource SuccessSoftBrush}"
+                                HorizontalAlignment="Left">
+                            <Path Data="{StaticResource IconFlame}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource SuccessBrush}" />
+                        </Border>
                         <TextBlock Text="{Binding StreakText}" Style="{StaticResource KpiValueTextStyle}"
-                                   Foreground="{StaticResource SuccessBrush}" Margin="0,6,0,0" />
+                                   Foreground="{StaticResource SuccessBrush}" Margin="0,12,0,0" />
+                        <TextBlock Text="RACHA DE DÍAS" Style="{StaticResource OverlineTextStyle}"
+                                   Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
 
                 <Border Style="{StaticResource KpiCardStyle}" Margin="0">
                     <StackPanel>
-                        <TextBlock Text="Distracciones bloqueadas" Style="{StaticResource LabelTextStyle}"
-                                   TextWrapping="Wrap" />
+                        <Border Style="{StaticResource IconTileStyle}" Background="{StaticResource UltraSoftBrush}"
+                                HorizontalAlignment="Left">
+                            <Path Data="{StaticResource IconBan}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource WarningBrush}" />
+                        </Border>
                         <TextBlock Text="{Binding BlockedText}" Style="{StaticResource KpiValueTextStyle}"
-                                   Foreground="{StaticResource WarningBrush}" Margin="0,6,0,0" />
+                                   Foreground="{StaticResource WarningBrush}" Margin="0,12,0,0" />
+                        <TextBlock Text="DISTRACCIONES BLOQUEADAS" Style="{StaticResource OverlineTextStyle}"
+                                   Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
             </UniformGrid>
 
             <!-- Bar chart -->
-            <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,16,0,0">
+            <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,16,0,0" Padding="24,20">
                 <StackPanel>
                     <TextBlock Text="{Binding ChartTitle}" Style="{StaticResource SectionTextStyle}" />
 
-                    <ItemsControl ItemsSource="{Binding Bars}" Margin="0,18,0,0" Height="190">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Rows="1" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type viewModels:ChartBar}">
-                                <Grid Margin="2,0" ToolTip="{Binding Tooltip}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
+                    <Grid Margin="0,20,0,0">
+                        <!-- A baseline so bars of zero still sit on something -->
+                        <Border Height="1" VerticalAlignment="Bottom" Margin="0,0,0,26"
+                                Background="{StaticResource BorderSubtleBrush}" />
 
-                                    <Rectangle Grid.Row="0"
-                                               Height="{Binding Height}"
-                                               MinHeight="3"
-                                               VerticalAlignment="Bottom"
-                                               RadiusX="4"
-                                               RadiusY="4">
-                                        <Rectangle.Style>
-                                            <Style TargetType="Rectangle">
-                                                <Setter Property="Fill" Value="{StaticResource AccentBrush}" />
-                                                <Setter Property="Opacity" Value="0.55" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsToday}" Value="True">
-                                                        <Setter Property="Opacity" Value="1" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Value}" Value="0">
-                                                        <Setter Property="Fill" Value="{StaticResource BorderBrush}" />
-                                                        <Setter Property="Opacity" Value="1" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Rectangle.Style>
-                                    </Rectangle>
+                        <ItemsControl ItemsSource="{Binding Bars}" Height="196">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type viewModels:ChartBar}">
+                                    <Grid Margin="3,0" ToolTip="{Binding Tooltip}" Background="Transparent">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Row="1"
-                                               Text="{Binding Label}"
-                                               Style="{StaticResource LabelTextStyle}"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,6,0,0" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                                        <Border Grid.Row="0"
+                                                Height="{Binding Height}"
+                                                MinHeight="4"
+                                                VerticalAlignment="Bottom"
+                                                CornerRadius="5"
+                                                Background="{Binding IsToday, Converter={StaticResource BoolToResource},
+                                                                     ConverterParameter=AccentGradientBrush|AccentSoftBrush}" />
+
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding Label}"
+                                                   Style="{StaticResource OverlineTextStyle}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,9,0,0" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
                 </StackPanel>
             </Border>
 
             <!-- Year heatmap -->
-            <Border Grid.Row="3" Style="{StaticResource CardStyle}" Margin="0,16,0,0">
+            <Border Grid.Row="3" Style="{StaticResource CardStyle}" Margin="0,16,0,0" Padding="24,20">
                 <StackPanel>
-                    <TextBlock Text="Últimos 12 meses" Style="{StaticResource SectionTextStyle}" />
-                    <TextBlock Text="Cada cuadradito es un día. Cuanto más marcado, más tiempo enfocado."
-                               Style="{StaticResource LabelTextStyle}" Margin="0,4,0,0" />
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="Últimos 12 meses" Style="{StaticResource SectionTextStyle}" />
+                            <TextBlock Text="Cada cuadradito es un día. Cuanto más marcado, más tiempo enfocado."
+                                       Style="{StaticResource LabelTextStyle}" Margin="0,3,0,0" />
+                        </StackPanel>
 
-                    <ItemsControl ItemsSource="{Binding Heatmap}" Margin="0,14,0,0" Height="98">
+                        <!-- Legend -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <TextBlock Text="menos" Style="{StaticResource OverlineTextStyle}"
+                                       VerticalAlignment="Center" Margin="0,0,7,0" />
+                            <Border Width="11" Height="11" CornerRadius="3" Margin="2,0"
+                                    Background="{StaticResource AccentBrush}" Opacity="0.07" />
+                            <Border Width="11" Height="11" CornerRadius="3" Margin="2,0"
+                                    Background="{StaticResource AccentBrush}" Opacity="0.3" />
+                            <Border Width="11" Height="11" CornerRadius="3" Margin="2,0"
+                                    Background="{StaticResource AccentBrush}" Opacity="0.55" />
+                            <Border Width="11" Height="11" CornerRadius="3" Margin="2,0"
+                                    Background="{StaticResource AccentBrush}" Opacity="0.8" />
+                            <Border Width="11" Height="11" CornerRadius="3" Margin="2,0"
+                                    Background="{StaticResource AccentBrush}" />
+                            <TextBlock Text="más" Style="{StaticResource OverlineTextStyle}"
+                                       VerticalAlignment="Center" Margin="7,0,0,0" />
+                        </StackPanel>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding Heatmap}" Margin="0,16,0,0" Height="104">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid Rows="7" />
@@ -176,21 +210,13 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type viewModels:HeatmapCell}">
-                                <Border Margin="1"
-                                        CornerRadius="2"
+                                <Border Margin="1.5"
+                                        CornerRadius="3"
                                         Background="{StaticResource AccentBrush}"
                                         Opacity="{Binding Opacity}"
-                                        ToolTip="{Binding Tooltip}">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsFiller}" Value="True">
-                                                    <Setter Property="Visibility" Value="Hidden" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                </Border>
+                                        ToolTip="{Binding Tooltip}"
+                                        Visibility="{Binding IsFiller, Converter={StaticResource BoolToResource},
+                                                             ConverterParameter=CollapsedVisibility|VisibleVisibility}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -205,65 +231,86 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="24,20">
                     <StackPanel>
                         <TextBlock Text="Sesiones recientes" Style="{StaticResource SectionTextStyle}" />
 
-                        <ItemsControl ItemsSource="{Binding RecentSessions}" Margin="0,12,0,0">
+                        <ItemsControl ItemsSource="{Binding RecentSessions}" Margin="0,14,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type viewModels:SessionRow}">
-                                    <Grid Margin="0,0,0,8">
+                                    <Grid Margin="0,0,0,10">
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding When}"
-                                                   Style="{StaticResource ValueTextStyle}" />
+                                        <Ellipse Grid.Column="0" Width="7" Height="7" VerticalAlignment="Center"
+                                                 Fill="{Binding IsCompleted, Converter={StaticResource BoolToResource},
+                                                                ConverterParameter=SuccessBrush|DangerBrush}" />
 
-                                        <TextBlock Grid.Column="1" Text="{Binding Duration}"
+                                        <TextBlock Grid.Column="1" Text="{Binding When}"
+                                                   Style="{StaticResource ValueTextStyle}"
+                                                   Margin="11,0,0,0" />
+
+                                        <TextBlock Grid.Column="2" Text="{Binding Duration}"
                                                    Style="{StaticResource LabelTextStyle}"
-                                                   Margin="0,0,16,0" />
+                                                   Margin="0,0,14,0" VerticalAlignment="Center" />
 
-                                        <TextBlock Grid.Column="2" Text="{Binding Status}" FontSize="12">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsCompleted}" Value="True">
-                                                            <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
+                                        <Border Grid.Column="3"
+                                                CornerRadius="8"
+                                                Padding="9,3"
+                                                Background="{Binding IsCompleted, Converter={StaticResource BoolToResource},
+                                                                     ConverterParameter=SuccessSoftBrush|DangerSoftBrush}">
+                                            <TextBlock Text="{Binding Status}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{Binding IsCompleted, Converter={StaticResource BoolToResource},
+                                                                            ConverterParameter=SuccessBrush|DangerBrush}" />
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <StackPanel HorizontalAlignment="Center" Margin="0,18,0,10"
+                                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}">
+                            <Path Data="{StaticResource IconCalendar}" Style="{StaticResource IconStyle}"
+                                  Width="30" Height="30" Stroke="{StaticResource TextTertiaryBrush}"
+                                  HorizontalAlignment="Center" Opacity="0.5" />
+                            <TextBlock Text="Todavía no hay sesiones en este período"
+                                       Style="{StaticResource LabelTextStyle}" Margin="0,10,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="24,20">
+                    <StackPanel>
+                        <TextBlock Text="Lo que más te tentó" Style="{StaticResource SectionTextStyle}" />
+
+                        <ItemsControl ItemsSource="{Binding TopDistractions}" Margin="0,14,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type viewModels:DistractionRow}">
+                                    <Grid Margin="0,0,0,10">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="{StaticResource IconBan}" Style="{StaticResource SmallIconStyle}"
+                                                  Stroke="{StaticResource WarningBrush}" VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding DisplayName}"
+                                                       Style="{StaticResource ValueTextStyle}"
+                                                       Margin="10,0,0,0" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding HitsText}" Style="{StaticResource LabelTextStyle}"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center" />
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
                         <TextBlock Style="{StaticResource LabelTextStyle}"
-                                   Text="Todavía no hay sesiones registradas en este período."
-                                   Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="2" Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Lo que más te tentó" Style="{StaticResource SectionTextStyle}" />
-
-                        <ItemsControl ItemsSource="{Binding TopDistractions}" Margin="0,12,0,0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type viewModels:DistractionRow}">
-                                    <Grid Margin="0,0,0,8">
-                                        <TextBlock Text="{Binding DisplayName}" Style="{StaticResource ValueTextStyle}" />
-                                        <TextBlock Text="{Binding HitsText}" Style="{StaticResource LabelTextStyle}"
-                                                   HorizontalAlignment="Right" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,0"
+                                   Text="Cada vez que una app bloqueada se abre durante una sesión, queda registrada acá." />
                     </StackPanel>
                 </Border>
             </Grid>

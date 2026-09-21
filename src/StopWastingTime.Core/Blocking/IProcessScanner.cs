@@ -16,6 +16,14 @@ public interface IProcessScanner
 
     /// <summary>Closes the process and its children. Returns false when it could not be closed.</summary>
     bool TryKill(RunningProcess process);
+
+    /// <summary>
+    /// Where the program lives on disk, or null when it cannot be read, which is normal for processes
+    /// owned by another user. Kept out of <see cref="Snapshot"/> because reading it is slow and throws
+    /// often, and the once a second sweep does not need it: only the blocklist screen does, to show the
+    /// real icon of each app.
+    /// </summary>
+    string? TryGetExecutablePath(RunningProcess process);
 }
 
 /// <summary>The real thing, on top of <see cref="Process"/>.</summary>
@@ -42,6 +50,23 @@ public sealed class SystemProcessScanner(ILogger<SystemProcessScanner> logger) :
         }
 
         return running;
+    }
+
+    public string? TryGetExecutablePath(RunningProcess process)
+    {
+        try
+        {
+            using var handle = Process.GetProcessById(process.Id);
+            return handle.MainModule?.FileName;
+        }
+        catch (Exception exception) when (exception is ArgumentException
+                                              or InvalidOperationException
+                                              or System.ComponentModel.Win32Exception
+                                              or NotSupportedException)
+        {
+            // Gone, or owned by someone else. Neither is worth reporting.
+            return null;
+        }
     }
 
     public bool TryKill(RunningProcess process)

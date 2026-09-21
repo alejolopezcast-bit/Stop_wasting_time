@@ -3,128 +3,165 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:controls="clr-namespace:StopWastingTime.App.Controls"
         xmlns:infrastructure="clr-namespace:StopWastingTime.App.Infrastructure"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=infrastructure:StartupReport}"
         Title="Stop Wasting Time"
         Icon="../Assets/app.ico"
-        Height="720"
-        Width="520"
+        Height="640"
+        Width="480"
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource SurfaceBrush}"
-        TextOptions.TextFormattingMode="Ideal">
+        Background="{StaticResource BackdropBrush}"
+        TextOptions.TextFormattingMode="Ideal"
+        UseLayoutRounding="True">
 
-    <Grid Margin="36,32,36,28">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="44"
+                            ResizeBorderThickness="0"
+                            CornerRadius="0"
+                            GlassFrameThickness="0"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
 
-        <!-- Logo and name -->
-        <StackPanel Grid.Row="0" HorizontalAlignment="Center">
-            <Image Source="../Assets/logo.png" Width="96" Height="96" HorizontalAlignment="Center" />
+    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            <TextBlock Text="Stop Wasting Time"
-                       Foreground="{StaticResource TextPrimaryBrush}"
-                       FontSize="32"
-                       FontWeight="SemiBold"
-                       HorizontalAlignment="Center"
-                       Margin="0,16,0,0" />
+            <controls:TitleBar Grid.Row="0" CanMaximize="False" />
 
-            <TextBlock Style="{StaticResource SubtitleTextStyle}"
-                       HorizontalAlignment="Center"
-                       TextAlignment="Center"
-                       MaxWidth="380"
-                       Margin="0,8,0,0"
-                       Text="Bloqueá lo que te distrae mientras te concentrás, y mirá después cuántas veces lo lograste." />
-        </StackPanel>
-
-        <!-- The one button that matters -->
-        <StackPanel Grid.Row="1" Margin="0,28,0,0" HorizontalAlignment="Center">
-            <Button Content="{Binding PrimaryActionText}"
-                    Style="{StaticResource PrimaryButtonStyle}"
-                    MinWidth="260"
-                    Click="OnPrimaryActionClick" />
-
-            <Button Content="Abrir igual, sin bloqueo de sitios"
-                    Margin="0,10,0,0"
-                    MinWidth="260"
-                    Click="OnOpenAnywayClick"
-                    Visibility="{Binding CanRelaunchElevated, Converter={StaticResource BoolToVisibility}}" />
-        </StackPanel>
-
-        <!-- Startup status -->
-        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,24,0,0" VerticalAlignment="Top">
-            <StackPanel>
-                <TextBlock Text="Estado del arranque" Style="{StaticResource SectionTextStyle}" />
-
-                <Grid Margin="0,14,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <Ellipse Grid.Row="0" Grid.Column="0" Width="8" Height="8" Margin="0,6,12,0" VerticalAlignment="Top">
-                        <Ellipse.Style>
-                            <Style TargetType="Ellipse">
-                                <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsElevated}" Value="False">
-                                        <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Ellipse.Style>
+            <!-- Hero -->
+            <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,18,0,0">
+                <Grid Width="104" Height="104" HorizontalAlignment="Center">
+                    <!-- A glow behind the mark, so the logo is lit rather than pasted on -->
+                    <Ellipse Width="96" Height="96" Fill="{StaticResource AccentBrush}" Opacity="0.18">
+                        <Ellipse.Effect>
+                            <BlurEffect Radius="46" />
+                        </Ellipse.Effect>
                     </Ellipse>
-                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,12">
-                        <TextBlock Text="Permisos de administrador" Style="{StaticResource LabelTextStyle}" />
-                        <TextBlock Text="{Binding ElevationText}" Style="{StaticResource ValueTextStyle}" />
-                    </StackPanel>
-
-                    <Ellipse Grid.Row="1" Grid.Column="0" Width="8" Height="8" Margin="0,6,12,0"
-                             VerticalAlignment="Top" Fill="{StaticResource SuccessBrush}" />
-                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,12">
-                        <TextBlock Text="Lista de bloqueo" Style="{StaticResource LabelTextStyle}" />
-                        <TextBlock Text="{Binding RulesText}" Style="{StaticResource ValueTextStyle}" />
-                    </StackPanel>
-
-                    <Ellipse Grid.Row="2" Grid.Column="0" Width="8" Height="8" Margin="0,6,12,0"
-                             VerticalAlignment="Top" Fill="{StaticResource SuccessBrush}" />
-                    <StackPanel Grid.Row="2" Grid.Column="1">
-                        <TextBlock Text="Base de datos" Style="{StaticResource LabelTextStyle}" />
-                        <TextBlock Text="{Binding DatabasePath}" Style="{StaticResource ValueTextStyle}"
-                                   ToolTip="{Binding DatabasePath}" />
-                    </StackPanel>
+                    <Image Source="../Assets/logo.png" Width="88" Height="88" />
                 </Grid>
-            </StackPanel>
-        </Border>
 
-        <TextBlock Grid.Row="3"
-                   x:Name="ErrorText"
-                   Style="{StaticResource SubtitleTextStyle}"
-                   Foreground="{StaticResource DangerBrush}"
-                   TextAlignment="Center"
-                   Margin="0,12,0,0"
-                   Visibility="Collapsed" />
+                <TextBlock Text="Stop Wasting Time"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           FontSize="30"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Margin="0,14,0,0" />
 
-        <!-- Footer -->
-        <Grid Grid.Row="5" Margin="0,16,0,0">
-            <TextBlock Text="{Binding VersionText}" Style="{StaticResource LabelTextStyle}" VerticalAlignment="Center" />
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Carpeta de datos" Style="{StaticResource IconButtonStyle}"
-                        Click="OnOpenDataFolderClick" />
-                <Button Content="Salir" Margin="8,0,0,0" Click="OnCloseClick" />
+                <TextBlock Style="{StaticResource SubtitleTextStyle}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           MaxWidth="340"
+                           Margin="0,6,0,0"
+                           Text="Bloqueá lo que te distrae mientras te concentrás, y mirá después cuántas veces lo lograste." />
             </StackPanel>
+
+            <!-- The one button that matters -->
+            <StackPanel Grid.Row="2" Margin="36,26,36,0">
+                <Button Content="{Binding PrimaryActionText}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        HorizontalAlignment="Stretch"
+                        Click="OnPrimaryActionClick" />
+
+                <Button Content="Abrir igual, sin bloqueo de sitios"
+                        Margin="0,10,0,0"
+                        HorizontalAlignment="Stretch"
+                        Click="OnOpenAnywayClick"
+                        Visibility="{Binding CanRelaunchElevated, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+
+            <!-- Startup status -->
+            <Border Grid.Row="3" Style="{StaticResource CardStyle}" Margin="36,20,36,0" Padding="18,16">
+                <StackPanel>
+                    <TextBlock Text="ESTADO DEL ARRANQUE" Style="{StaticResource OverlineTextStyle}" />
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconTileStyle}" Width="30" Height="30"
+                                Background="{Binding IsElevated, Converter={StaticResource BoolToResource},
+                                                     ConverterParameter=SuccessSoftBrush|UltraSoftBrush}">
+                            <Path Data="{StaticResource IconShieldCheck}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{Binding IsElevated, Converter={StaticResource BoolToResource},
+                                                   ConverterParameter=SuccessBrush|WarningBrush}" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Permisos de administrador" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{Binding ElevationText}" Style="{StaticResource ValueTextStyle}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconTileStyle}" Width="30" Height="30">
+                            <Path Data="{StaticResource IconBlock}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource AccentBrightBrush}" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Lista de bloqueo" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{Binding RulesText}" Style="{StaticResource ValueTextStyle}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource IconTileStyle}" Width="30" Height="30">
+                            <Path Data="{StaticResource IconDatabase}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource AccentBrightBrush}" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Base de datos" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{Binding DatabasePath}" Style="{StaticResource ValueTextStyle}"
+                                       ToolTip="{Binding DatabasePath}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Grid.Row="4"
+                       x:Name="ErrorText"
+                       Style="{StaticResource SubtitleTextStyle}"
+                       Foreground="{StaticResource DangerBrush}"
+                       TextAlignment="Center"
+                       Margin="36,14,36,0"
+                       VerticalAlignment="Top"
+                       Visibility="Collapsed" />
+
+            <!-- Footer -->
+            <Grid Grid.Row="5" Margin="36,0,30,20">
+                <TextBlock Text="{Binding VersionText}" Style="{StaticResource OverlineTextStyle}"
+                           VerticalAlignment="Center" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource GhostButtonStyle}"
+                            Click="OnOpenDataFolderClick"
+                            ToolTip="Abrir la carpeta de datos">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconFolder}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource TextTertiaryBrush}" />
+                            <TextBlock Text="Carpeta de datos" Margin="7,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Content="Salir" Margin="8,0,0,0" Click="OnCloseClick" />
+                </StackPanel>
+            </Grid>
         </Grid>
-    </Grid>
+    </Border>
 </Window>

@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using StopWastingTime.App.Infrastructure;
 using StopWastingTime.Core.Blocking;
 using StopWastingTime.Core.Data;
 using StopWastingTime.Core.Models;
@@ -8,7 +10,10 @@ using StopWastingTime.Core.Models;
 namespace StopWastingTime.App.ViewModels;
 
 /// <summary>The blocklist screen: which apps get closed and which sites stop resolving.</summary>
-public partial class BlocklistViewModel(BlockRuleRepository rules, IProcessScanner scanner) : ObservableObject
+public partial class BlocklistViewModel(
+    BlockRuleRepository rules,
+    IProcessScanner scanner,
+    AppIconProvider icons) : ObservableObject
 {
     [ObservableProperty]
     private string _newAppName = string.Empty;
@@ -29,9 +34,21 @@ public partial class BlocklistViewModel(BlockRuleRepository rules, IProcessScann
     /// <summary>What is running right now, so an app can be added without typing its executable name.</summary>
     public ObservableCollection<RunningProcessViewModel> DetectedProcesses { get; } = [];
 
+    public string AppsCountText => Describe(Apps, "app", "apps");
+
+    public string SitesCountText => Describe(Sites, "sitio", "sitios");
+
+    public bool HasApps => Apps.Count > 0;
+
+    public bool HasSites => Sites.Count > 0;
+
     public async Task LoadAsync()
     {
         var all = await rules.GetAllAsync();
+
+        // The icon of an app can only be read while it is running, since that is the only time its path
+        // is known. Anything not running falls back to its initial.
+        var paths = ExecutablePathsByName();
 
         Apps.Clear();
         Sites.Clear();
@@ -42,6 +59,17 @@ public partial class BlocklistViewModel(BlockRuleRepository rules, IProcessScann
 
             if (rule.Kind == BlockKind.Process)
             {
+                // The remembered path first; if the app happens to be running and we never wrote one
+                // down, this is the moment to learn it.
+                var path = rule.IconPath;
+
+                if (string.IsNullOrEmpty(path) && paths.TryGetValue(rule.Value, out var discovered) && discovered is not null)
+                {
+                    path = discovered;
+                    await rules.SetIconPathAsync(rule.Id, discovered);
+                }
+
+                item.Icon = icons.GetIcon(path);
                 Apps.Add(item);
             }
             else
@@ -51,6 +79,7 @@ public partial class BlocklistViewModel(BlockRuleRepository rules, IProcessScann
         }
 
         RefreshProcesses();
+        RaiseCounts();
     }
 
     /// <summary>
@@ -65,13 +94,25 @@ public partial class BlocklistViewModel(BlockRuleRepository rules, IProcessScann
             .ToHashSet(StringComparer.Ordinal);
 
         var candidates = scanner.Snapshot()
-            .Select(process => ProcessNames.Normalize(process.Name))
-            .Where(name => name.Length > 0)
-            .Where(name => !ProcessNames.Protected.Contains(name))
-            .Where(name => !alreadyListed.Contains(name))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(name => name, StringComparer.Ordinal)
-            .Select(name => new RunningProcessViewModel(name))
+            .Select(process => new
+            {
+                Name = ProcessNames.Normalize(process.Name),
+                Process = process
+            })
+            .Where(candidate => candidate.Name.Length > 0)
+            .Where(candidate => !ProcessNames.Protected.Contains(candidate.Name))
+            .Where(candidate => !alreadyListed.Contains(candidate.Name))
+            .GroupBy(candidate => candidate.Name, StringComparer.Ordinal)
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .Select(group =>
+            {
+                var path = scanner.TryGetExecutablePath(group.First().Process);
+                return new RunningProcessViewModel(group.Key)
+                {
+                    ExecutablePath = path,
+                    Icon = icons.GetIcon(path)
+                };
+            })
             .ToList();
 
         DetectedProcesses.Clear();
@@ -89,14 +130,18 @@ public partial class BlocklistViewModel(BlockRuleRepository rules, IProcessScann
             return;
         }
 
-        await AddAppCoreAsync(SelectedProcess.Name);
+        await AddAppCoreAsync(SelectedProcess.Name, SelectedProcess.Icon, SelectedProcess.ExecutablePath);
         SelectedProcess = null;
     }
 
     [RelayCommand]
     private async Task AddAppAsync()
     {
-        await AddAppCoreAsync(NewAppName);
+        // Typed by hand: if that program happens to be running, its icon comes along.
+        var running = DetectedProcesses.FirstOrDefault(process =>
+            string.Equals(process.Name, ProcessNames.Normalize(NewAppName), StringComparison.Ordinal));
+
+        await AddAppCoreAsync(NewAppName, running?.Icon, running?.ExecutablePath);
         NewAppName = string.Empty;
     }
 
@@ -127,6 +172,7 @@ public partial class BlocklistViewModel(BlockRuleRepository rules, IProcessScann
 
         Sites.Add(new BlockRuleViewModel(stored, rules));
         NewSiteDomain = string.Empty;
+        RaiseCounts();
     }
 
     [RelayCommand]
@@ -142,9 +188,10 @@ public partial class BlocklistViewModel(BlockRuleRepository rules, IProcessScann
         Apps.Remove(item);
         Sites.Remove(item);
         RefreshProcesses();
+        RaiseCounts();
     }
 
-    private async Task AddAppCoreAsync(string input)
+    private async Task AddAppCoreAsync(string input, ImageSource? icon, string? iconPath)
     {
         Error = null;
 
@@ -173,11 +220,46 @@ public partial class BlocklistViewModel(BlockRuleRepository rules, IProcessScann
             Kind = BlockKind.Process,
             Value = value,
             DisplayName = Capitalize(value),
-            IsEnabled = true
+            IsEnabled = true,
+            IconPath = iconPath
         });
 
-        Apps.Add(new BlockRuleViewModel(stored, rules));
+        Apps.Add(new BlockRuleViewModel(stored, rules) { Icon = icon });
         RefreshProcesses();
+        RaiseCounts();
+    }
+
+    private void RaiseCounts()
+    {
+        OnPropertyChanged(nameof(AppsCountText));
+        OnPropertyChanged(nameof(SitesCountText));
+        OnPropertyChanged(nameof(HasApps));
+        OnPropertyChanged(nameof(HasSites));
+    }
+
+    private Dictionary<string, string?> ExecutablePathsByName()
+    {
+        var paths = new Dictionary<string, string?>(StringComparer.Ordinal);
+
+        foreach (var process in scanner.Snapshot())
+        {
+            var name = ProcessNames.Normalize(process.Name);
+
+            if (name.Length == 0 || paths.ContainsKey(name))
+            {
+                continue;
+            }
+
+            paths[name] = scanner.TryGetExecutablePath(process);
+        }
+
+        return paths;
+    }
+
+    private static string Describe(ICollection<BlockRuleViewModel> items, string singular, string plural)
+    {
+        var enabled = items.Count(item => item.IsEnabled);
+        return $"{enabled} de {items.Count} {(items.Count == 1 ? singular : plural)} activ{(items.Count == 1 ? "a" : "as")}";
     }
 
     private static string Capitalize(string value) =>
@@ -190,6 +272,10 @@ public partial class BlockRuleViewModel(BlockRule rule, BlockRuleRepository repo
     [ObservableProperty]
     private bool _isEnabled = rule.IsEnabled;
 
+    /// <summary>The real icon of the program, when it could be read.</summary>
+    [ObservableProperty]
+    private ImageSource? _icon;
+
     public long Id => rule.Id;
 
     public string Value => rule.Value;
@@ -199,6 +285,13 @@ public partial class BlockRuleViewModel(BlockRule rule, BlockRuleRepository repo
     public string Subtitle => rule.Kind == BlockKind.Process
         ? $"{rule.Value}.exe"
         : rule.Value;
+
+    /// <summary>Stands in for the icon when there is none: the first letter, as a monogram.</summary>
+    public string Initial => rule.DisplayName.Length > 0
+        ? rule.DisplayName[..1].ToUpperInvariant()
+        : "?";
+
+    public bool IsWebsite => rule.Kind == BlockKind.Website;
 
     partial void OnIsEnabledChanged(bool value)
     {
@@ -211,7 +304,16 @@ public partial class BlockRuleViewModel(BlockRule rule, BlockRuleRepository repo
 }
 
 /// <summary>A program currently running, offered by the picker.</summary>
-public sealed record RunningProcessViewModel(string Name)
+public sealed class RunningProcessViewModel(string name)
 {
+    public string Name { get; } = name;
+
+    /// <summary>Where it was found, so the rule can remember it.</summary>
+    public string? ExecutablePath { get; init; }
+
+    public ImageSource? Icon { get; init; }
+
     public string DisplayName => $"{Name}.exe";
+
+    public string Initial => Name.Length > 0 ? Name[..1].ToUpperInvariant() : "?";
 }

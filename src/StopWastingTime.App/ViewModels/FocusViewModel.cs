@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StopWastingTime.Core.Blocking;
+using StopWastingTime.Core.Data;
+using StopWastingTime.Core.Models;
 using StopWastingTime.Core.Sessions;
 using StopWastingTime.Core.Stats;
 
@@ -11,10 +13,11 @@ public partial class FocusViewModel : ObservableObject
 {
     private readonly FocusSessionService _sessions;
     private readonly StatsService _stats;
+    private readonly BlockRuleRepository _rules;
     private readonly HostsFileBlocker _hostsBlocker;
 
     [ObservableProperty]
-    private int _selectedMinutes = 25;
+    private int _selectedMinutes = DurationPreset.DefaultMinutes;
 
     [ObservableProperty]
     private bool _isStrict;
@@ -32,18 +35,36 @@ public partial class FocusViewModel : ObservableObject
     private int _blockedDistractions;
 
     [ObservableProperty]
-    private string _todaySummary = "Todavía no hay sesiones hoy.";
-
-    [ObservableProperty]
     private string? _warning;
 
     [ObservableProperty]
     private string? _lastResult;
 
-    public FocusViewModel(FocusSessionService sessions, StatsService stats, HostsFileBlocker hostsBlocker)
+    // The side panel: what today looks like so far, and what a session would take away.
+    [ObservableProperty]
+    private string _todaySessionsText = "0";
+
+    [ObservableProperty]
+    private string _todayFocusedText = "0 min";
+
+    [ObservableProperty]
+    private string _streakText = "0";
+
+    [ObservableProperty]
+    private string _blockedAppsText = "0 apps";
+
+    [ObservableProperty]
+    private string _blockedSitesText = "0 sitios";
+
+    public FocusViewModel(
+        FocusSessionService sessions,
+        StatsService stats,
+        BlockRuleRepository rules,
+        HostsFileBlocker hostsBlocker)
     {
         _sessions = sessions;
         _stats = stats;
+        _rules = rules;
         _hostsBlocker = hostsBlocker;
 
         _sessions.Progressed += (_, progress) =>
@@ -68,13 +89,12 @@ public partial class FocusViewModel : ObservableObject
             IsRunning = false;
             ProgressFraction = 0;
             RemainingText = FormatMinutes(SelectedMinutes);
-            LastResult = session.Status == Core.Models.SessionStatus.Completed
-                ? $"Sesión completada: {session.PlannedMinutes} minutos."
-                : $"Sesión abandonada a los {session.Elapsed.Minutes} minutos.";
+            LastResult = session.Status == SessionStatus.Completed
+                ? $"Sesión completada: {session.PlannedMinutes} minutos de concentración."
+                : $"Sesión abandonada a los {(int)session.Elapsed.TotalMinutes} minutos.";
 
             await RefreshTodayAsync();
         };
-
     }
 
     /// <summary>The usual pomodoro-ish durations, one click away.</summary>
@@ -142,10 +162,16 @@ public partial class FocusViewModel : ObservableObject
         var today = DateOnly.FromDateTime(DateTime.Now);
         var totals = await _stats.GetTotalsAsync(StatsPeriod.Day, today);
 
-        TodaySummary = totals.CompletedSessions == 0
-            ? "Todavía no hay sesiones completadas hoy."
-            : $"Hoy: {totals.CompletedSessions} {(totals.CompletedSessions == 1 ? "sesión" : "sesiones")} " +
-              $"y {FormatDuration(totals.FocusedTime)} de concentración.";
+        TodaySessionsText = totals.CompletedSessions.ToString(System.Globalization.CultureInfo.CurrentCulture);
+        TodayFocusedText = FormatDuration(totals.FocusedTime);
+        StreakText = totals.CurrentStreak.ToString(System.Globalization.CultureInfo.CurrentCulture);
+
+        var rules = await _rules.GetEnabledAsync();
+        var apps = rules.Count(rule => rule.Kind == BlockKind.Process);
+        var sites = rules.Count(rule => rule.Kind == BlockKind.Website);
+
+        BlockedAppsText = $"{apps} {(apps == 1 ? "app" : "apps")}";
+        BlockedSitesText = $"{sites} {(sites == 1 ? "sitio" : "sitios")}";
     }
 
     partial void OnIsRunningChanged(bool value)
@@ -186,6 +212,9 @@ public partial class FocusViewModel : ObservableObject
 /// <summary>A one click session length.</summary>
 public partial class DurationPreset : ObservableObject
 {
+    /// <summary>The preset that starts out chosen.</summary>
+    public const int DefaultMinutes = 25;
+
     [ObservableProperty]
     private bool _isSelected;
 
@@ -194,9 +223,6 @@ public partial class DurationPreset : ObservableObject
         Minutes = minutes;
         IsSelected = minutes == DefaultMinutes;
     }
-
-    /// <summary>The preset that starts out chosen.</summary>
-    public const int DefaultMinutes = 25;
 
     public int Minutes { get; }
 

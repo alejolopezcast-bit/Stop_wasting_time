@@ -3,22 +3,34 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:controls="clr-namespace:StopWastingTime.App.Controls"
         xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
         xmlns:views="clr-namespace:StopWastingTime.App.Views"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:ShellViewModel}"
         Title="Stop Wasting Time"
         Icon="../Assets/app.ico"
-        Height="760"
-        Width="1080"
-        MinHeight="640"
-        MinWidth="940"
+        Height="780"
+        Width="1140"
+        MinHeight="660"
+        MinWidth="1000"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource SurfaceBrush}"
-        TextOptions.TextFormattingMode="Ideal">
+        TextOptions.TextFormattingMode="Ideal"
+        UseLayoutRounding="True">
+
+    <!-- The caption is drawn by the app, so the system one is reduced to the resize border -->
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="44"
+                            ResizeBorderThickness="6"
+                            CornerRadius="0"
+                            GlassFrameThickness="0"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <!-- Each screen is a view model; these templates decide how one is drawn. -->
+        <!-- Each screen is a view model; these templates decide how one is drawn -->
         <DataTemplate DataType="{x:Type viewModels:FocusViewModel}">
             <views:FocusView />
         </DataTemplate>
@@ -35,116 +47,157 @@
             <views:StatsView />
         </DataTemplate>
 
-        <!-- A navigation entry, highlighted while its screen is the one on show. -->
-        <Style x:Key="NavButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
-            <Setter Property="Padding" Value="16,11" />
-            <Setter Property="Margin" Value="0,0,0,4" />
-            <Setter Property="FontSize" Value="14" />
-        </Style>
+        <!-- A navigation entry: icon, label, and a bar that marks the screen you are on -->
+        <DataTemplate x:Key="NavItemTemplate" DataType="{x:Type viewModels:NavItem}">
+            <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                    CommandParameter="{Binding}"
+                    HorizontalContentAlignment="Stretch"
+                    Margin="0,0,0,3"
+                    AutomationProperties.Name="{Binding Label}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="Transparent" Height="42">
+                            <Border x:Name="Chrome"
+                                    CornerRadius="{StaticResource RadiusSmall}"
+                                    Background="{Binding IsSelected, Converter={StaticResource BoolToResource},
+                                                         ConverterParameter=SurfaceOverlayBrush|TransparentBrush}" />
+
+                            <!-- The marker is the only thing that moves between screens -->
+                            <Border Width="3"
+                                    Height="18"
+                                    HorizontalAlignment="Left"
+                                    CornerRadius="0,2,2,0"
+                                    Background="{StaticResource AccentGradientBrush}"
+                                    Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibility}}" />
+
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                                <Path Data="{Binding IconKey, Converter={StaticResource ResourceKey}}"
+                                      Style="{StaticResource IconStyle}"
+                                      Stroke="{Binding IsSelected, Converter={StaticResource BoolToResource},
+                                                       ConverterParameter=AccentBrightBrush|TextTertiaryBrush}" />
+                                <TextBlock Text="{Binding Label}"
+                                           Margin="13,0,0,0"
+                                           VerticalAlignment="Center"
+                                           FontSize="13.5"
+                                           Foreground="{Binding IsSelected, Converter={StaticResource BoolToResource},
+                                                                ConverterParameter=TextPrimaryBrush|TextSecondaryBrush}" />
+                            </StackPanel>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </DataTemplate>
     </Window.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="212" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+    <Border Background="{StaticResource BackdropBrush}"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-        <!-- Navigation rail -->
-        <Border Grid.Column="0" Background="{StaticResource SurfaceSunkenBrush}" Padding="16,20">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+            <!-- Caption -->
+            <controls:TitleBar Grid.Row="0">
+                <controls:TitleBar.Status>
+                    <Border Padding="12,5"
+                            CornerRadius="10"
+                            Background="{StaticResource AccentSoftBrush}"
+                            Visibility="{Binding IsSessionRunning, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconClock}"
+                                  Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{Binding IsUltraSessionRunning, Converter={StaticResource BoolToResource},
+                                                   ConverterParameter=UltraBrush|AccentBrightBrush}" />
+                            <TextBlock Text="{Binding RemainingText}"
+                                       Margin="8,0,0,0"
+                                       FontSize="12.5"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{Binding IsUltraSessionRunning, Converter={StaticResource BoolToResource},
+                                                            ConverterParameter=UltraBrush|AccentBrightBrush}" />
+                            <TextBlock Text="de concentración"
+                                       Margin="6,0,0,0"
+                                       FontSize="12.5"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                        </StackPanel>
+                    </Border>
+                </controls:TitleBar.Status>
+            </controls:TitleBar>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4,0,0,24">
-                    <Image Source="../Assets/logo.png" Width="30" Height="30" />
-                    <TextBlock Text="Stop Wasting&#x0a;Time"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               LineHeight="17"
-                               Margin="10,0,0,0"
-                               VerticalAlignment="Center" />
-                </StackPanel>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="232" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Row="1">
-                    <Button Command="{Binding ShowFocusCommand}" Content="Enfoque">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsFocusSelected}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
-                                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                <!-- Navigation rail -->
+                <Grid Grid.Column="0" Margin="14,4,8,16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                    <Button Command="{Binding ShowUltraCommand}" Content="Enfoque ultra">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsUltraSelected}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
-                                        <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-
-                    <Button Command="{Binding ShowBlocklistCommand}" Content="Bloqueos">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsBlocklistSelected}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
-                                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-
-                    <Button Command="{Binding ShowStatsCommand}" Content="Estadísticas">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsStatsSelected}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}" />
-                                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </StackPanel>
-
-                <!-- Session badge -->
-                <Border Grid.Row="3"
-                        Style="{StaticResource CardStyle}"
-                        Padding="14,12"
-                        Visibility="{Binding IsSessionRunning, Converter={StaticResource BoolToVisibility}}">
-                    <StackPanel>
-                        <TextBlock Text="Sesión en curso" Style="{StaticResource LabelTextStyle}" />
-                        <TextBlock Text="{Binding RemainingText}"
-                                   Style="{StaticResource ValueTextStyle}"
-                                   FontSize="20"
-                                   Margin="0,4,0,0" />
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="12,6,0,22">
+                        <Image Source="../Assets/logo.png" Width="32" Height="32" />
+                        <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Stop Wasting Time"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       FontSize="13.5"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Text="Concentración"
+                                       Style="{StaticResource OverlineTextStyle}"
+                                       Margin="0,1,0,0" />
+                        </StackPanel>
                     </StackPanel>
+
+                    <ItemsControl Grid.Row="1"
+                                  ItemsSource="{Binding NavItems}"
+                                  ItemTemplate="{StaticResource NavItemTemplate}" />
+
+                    <!-- Session card, only while one is running -->
+                    <Border Grid.Row="3"
+                            Style="{StaticResource CardStyle}"
+                            Padding="16,14"
+                            Visibility="{Binding IsSessionRunning, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                         Fill="{Binding IsUltraSessionRunning, Converter={StaticResource BoolToResource},
+                                                        ConverterParameter=UltraBrush|SuccessBrush}" />
+                                <TextBlock Text="SESIÓN EN CURSO"
+                                           Style="{StaticResource OverlineTextStyle}"
+                                           Margin="8,0,0,0"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding RemainingText}"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       FontSize="26"
+                                       FontWeight="Light"
+                                       Margin="0,6,0,0" />
+                            <TextBlock Text="restantes" Style="{StaticResource LabelTextStyle}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Current screen -->
+                <Border Grid.Column="1"
+                        Background="{StaticResource SurfaceBrush}"
+                        CornerRadius="18,0,0,0"
+                        BorderBrush="{StaticResource BorderSubtleBrush}"
+                        BorderThickness="1,1,0,0">
+                    <ContentControl Content="{Binding CurrentPage}" />
                 </Border>
             </Grid>
-        </Border>
-
-        <!-- Current screen -->
-        <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" />
-    </Grid>
+        </Grid>
+    </Border>
 </Window>

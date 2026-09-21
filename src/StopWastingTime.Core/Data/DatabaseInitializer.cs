@@ -10,7 +10,7 @@ namespace StopWastingTime.Core.Data;
 public sealed class DatabaseInitializer(SqliteConnectionFactory factory)
 {
     /// <summary>Bump this and add a migration step whenever the schema changes.</summary>
-    public const int CurrentSchemaVersion = 1;
+    public const int CurrentSchemaVersion = 2;
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
@@ -32,6 +32,13 @@ public sealed class DatabaseInitializer(SqliteConnectionFactory factory)
         {
             await ExecuteAsync(connection, Schema.V1, cancellationToken).ConfigureAwait(false);
             await SeedDefaultRulesAsync(connection, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (fromVersion < 2)
+        {
+            // Remembering where an app lives lets the blocklist show its real icon even when it is not
+            // running, which is the only moment its path can be read.
+            await ExecuteAsync(connection, Schema.V2, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -129,6 +136,10 @@ public sealed class DatabaseInitializer(SqliteConnectionFactory factory)
             );
 
             CREATE INDEX IF NOT EXISTS IX_BlockHits_LocalDate ON BlockHits (LocalDate);
+            """;
+
+        public const string V2 = """
+            ALTER TABLE BlockRules ADD COLUMN IconPath TEXT NULL;
             """;
     }
 }

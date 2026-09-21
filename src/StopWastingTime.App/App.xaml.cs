@@ -187,6 +187,7 @@ public partial class App : Application
         builder.Services.AddSingleton<FocusSessionService>();
         builder.Services.AddSingleton<SessionTicker>();
         builder.Services.AddSingleton<IDialogService, DialogService>();
+        builder.Services.AddSingleton<AppIconProvider>();
         builder.Services.AddSingleton<FocusViewModel>();
         builder.Services.AddSingleton<UltraFocusViewModel>();
         builder.Services.AddSingleton<BlocklistViewModel>();

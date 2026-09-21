@@ -29,8 +29,8 @@ public sealed class BlockRuleRepository(SqliteConnectionFactory factory)
         await using var connection = await factory.OpenAsync(cancellationToken).ConfigureAwait(false);
         await using var command = connection.CreateCommand();
         command.CommandText = """
-            INSERT INTO BlockRules (Kind, Value, DisplayName, IsEnabled)
-            VALUES ($kind, $value, $displayName, $isEnabled)
+            INSERT INTO BlockRules (Kind, Value, DisplayName, IsEnabled, IconPath)
+            VALUES ($kind, $value, $displayName, $isEnabled, $iconPath)
             ON CONFLICT (Kind, Value) DO UPDATE SET IsEnabled = excluded.IsEnabled;
             SELECT Id FROM BlockRules WHERE Kind = $kind AND Value = $value;
             """;
@@ -38,6 +38,7 @@ public sealed class BlockRuleRepository(SqliteConnectionFactory factory)
         command.Parameters.AddWithValue("$value", rule.Value);
         command.Parameters.AddWithValue("$displayName", rule.DisplayName);
         command.Parameters.AddWithValue("$isEnabled", rule.IsEnabled ? 1 : 0);
+        command.Parameters.AddWithValue("$iconPath", (object?)rule.IconPath ?? DBNull.Value);
 
         var id = Convert.ToInt64(await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false), CultureInfo.InvariantCulture);
 
@@ -47,7 +48,8 @@ public sealed class BlockRuleRepository(SqliteConnectionFactory factory)
             Kind = rule.Kind,
             Value = rule.Value,
             DisplayName = rule.DisplayName,
-            IsEnabled = rule.IsEnabled
+            IsEnabled = rule.IsEnabled,
+            IconPath = rule.IconPath
         };
     }
 
@@ -57,6 +59,20 @@ public sealed class BlockRuleRepository(SqliteConnectionFactory factory)
         await using var command = connection.CreateCommand();
         command.CommandText = "UPDATE BlockRules SET IsEnabled = $isEnabled WHERE Id = $id;";
         command.Parameters.AddWithValue("$isEnabled", isEnabled ? 1 : 0);
+        command.Parameters.AddWithValue("$id", id);
+        await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Remembers where an app was found, so its icon survives the program not running. Called when the
+    /// blocklist screen happens to see it.
+    /// </summary>
+    public async Task SetIconPathAsync(long id, string iconPath, CancellationToken cancellationToken = default)
+    {
+        await using var connection = await factory.OpenAsync(cancellationToken).ConfigureAwait(false);
+        await using var command = connection.CreateCommand();
+        command.CommandText = "UPDATE BlockRules SET IconPath = $iconPath WHERE Id = $id;";
+        command.Parameters.AddWithValue("$iconPath", iconPath);
         command.Parameters.AddWithValue("$id", id);
         await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -82,7 +98,10 @@ public sealed class BlockRuleRepository(SqliteConnectionFactory factory)
                 Kind = Enum.Parse<BlockKind>(reader.GetString(reader.GetOrdinal("Kind"))),
                 Value = reader.GetString(reader.GetOrdinal("Value")),
                 DisplayName = reader.GetString(reader.GetOrdinal("DisplayName")),
-                IsEnabled = reader.GetInt32(reader.GetOrdinal("IsEnabled")) != 0
+                IsEnabled = reader.GetInt32(reader.GetOrdinal("IsEnabled")) != 0,
+                IconPath = reader.IsDBNull(reader.GetOrdinal("IconPath"))
+                    ? null
+                    : reader.GetString(reader.GetOrdinal("IconPath"))
             });
         }
 

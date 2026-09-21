@@ -24,6 +24,8 @@ session is recorded — per day, per week, per month and per year.
   runs, and the file is restored afterwards. The browser itself is left alone.
 - **A distraction counter.** Every blocked attempt is recorded, so you can see what tempts you and how
   often.
+- **The blocklist looks like your programs.** Each app shows its real Windows icon, remembered from the
+  last time it was seen running, so the list is scannable instead of being a column of file names.
 - **Statistics.** Sessions completed, time focused, average session, current streak and blocked
   distractions, with a bar chart per period and a year heatmap.
 - **Tray icon.** Closing the window never closes the app: it goes to the tray and keeps working, because
@@ -145,8 +147,13 @@ StopWastingTime.slnx
 ```
 
 Everything that could go wrong quietly — editing the hosts file, matching process names, aggregating
-statistics, the session state machine — lives in `Core` behind interfaces, so it is tested without
-opening a window or touching the system.
+statistics, the session state machine, the schema migrations — lives in `Core` behind interfaces, so it
+is tested without opening a window or touching the system.
+
+The interface draws its own window caption rather than using the system one, which is light and would
+sit on a dark app like a sticker. Colours, spacing, typography and control styles all come from
+`Themes/Palette.xaml`, and the icons are geometry in `Themes/Icons.xaml`: no icon font to go missing, and
+one weight across the app.
 
 ## Configuration and data
 
@@ -154,7 +161,7 @@ Everything the app stores lives in `%LOCALAPPDATA%\StopWastingTime`:
 
 | File | What it is |
 |---|---|
-| `stopwastingtime.db` | SQLite database: sessions, blocklist, blocked attempts |
+| `stopwastingtime.db` | SQLite database: sessions, blocklist, blocked attempts. Upgraded in place when the schema changes, so history is never lost |
 | `hosts.backup` | The hosts file as it was before the app ever changed it |
 | `app.log` | Startup and session log. A windowed app has no console, so this is where a failed launch explains itself |
 

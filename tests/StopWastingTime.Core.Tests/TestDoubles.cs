@@ -30,6 +30,9 @@ public sealed class FakeProcessScanner : IProcessScanner
 
     public IReadOnlyList<RunningProcess> Snapshot() => _running.ToList();
 
+    /// <summary>Tests never look at icons, so there is nothing to hand back.</summary>
+    public string? TryGetExecutablePath(RunningProcess process) => null;
+
     public bool TryKill(RunningProcess process)
     {
         if (!CanKill)

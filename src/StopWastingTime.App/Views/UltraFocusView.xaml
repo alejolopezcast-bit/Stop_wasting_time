@@ -8,158 +8,219 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewModels:UltraFocusViewModel}"
              d:DesignHeight="700"
-             d:DesignWidth="760">
+             d:DesignWidth="880">
 
-    <Grid Margin="32,28,32,28">
+    <Grid Style="{StaticResource PageRootStyle}" Margin="34,26,34,26">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="22" />
+            <ColumnDefinition Width="286" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0">
-            <TextBlock Text="Enfoque ultra" Style="{StaticResource TitleTextStyle}" />
+        <!-- Header -->
+        <StackPanel Grid.Column="0" Grid.ColumnSpan="3">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Enfoque ultra" Style="{StaticResource TitleTextStyle}" />
+                <Border Background="{StaticResource UltraSoftBrush}"
+                        CornerRadius="9"
+                        Padding="10,4"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="SIN SALIDA"
+                               Foreground="{StaticResource UltraBrush}"
+                               FontSize="10.5"
+                               FontWeight="SemiBold" />
+                </Border>
+            </StackPanel>
             <TextBlock Style="{StaticResource SubtitleTextStyle}"
-                       Margin="0,6,0,0"
+                       Margin="0,4,0,0"
                        Text="Elegís el tiempo y no hay vuelta atrás: no se puede cancelar, la app no se cierra, y se bloquea toda tu lista." />
         </StackPanel>
 
-        <!-- What you are signing up for, before you sign up for it -->
-        <Border Grid.Row="1"
-                Margin="0,18,0,0"
-                Background="{StaticResource SurfaceRaisedBrush}"
-                BorderBrush="{StaticResource WarningBrush}"
-                BorderThickness="1"
-                CornerRadius="12"
-                Padding="18,14"
-                Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}">
-            <StackPanel>
-                <TextBlock Text="Antes de empezar" Style="{StaticResource SectionTextStyle}"
-                           Foreground="{StaticResource WarningBrush}" />
-                <TextBlock Style="{StaticResource LabelTextStyle}" Margin="0,8,0,0" TextWrapping="Wrap"
-                           Text="No hay botón de cancelar. Cerrar la ventana no termina la sesión, y salir de la app queda deshabilitado hasta que se cumpla el tiempo." />
-                <TextBlock Text="{Binding BlocklistSummary}" Style="{StaticResource LabelTextStyle}"
-                           Margin="0,6,0,0" TextWrapping="Wrap" />
+        <!-- Timer -->
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,22,0,0" Padding="28">
+            <StackPanel VerticalAlignment="Center">
+                <Grid Width="268" Height="268" HorizontalAlignment="Center">
+                    <Ellipse Stroke="{StaticResource TrackBrush}" StrokeThickness="16" />
+
+                    <controls:ProgressRing Fraction="{Binding ProgressFraction}"
+                                           Thickness="16"
+                                           Stroke="{StaticResource UltraGradientBrush}"
+                                           StrokeThickness="16"
+                                           StrokeStartLineCap="Round"
+                                           StrokeEndLineCap="Round" />
+
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding RemainingText}"
+                                   Style="{StaticResource DisplayTextStyle}"
+                                   HorizontalAlignment="Center" />
+
+                        <TextBlock Style="{StaticResource OverlineTextStyle}"
+                                   Foreground="{StaticResource UltraBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,2,0,0"
+                                   Text="SIN CANCELACIÓN POSIBLE"
+                                   Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" />
+
+                        <TextBlock Style="{StaticResource OverlineTextStyle}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,2,0,0"
+                                   Text="LISTO PARA COMPROMETERSE"
+                                   Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}" />
+
+                        <Border Margin="0,14,0,0"
+                                Padding="11,5"
+                                CornerRadius="10"
+                                HorizontalAlignment="Center"
+                                Background="{StaticResource UltraSoftBrush}"
+                                Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource IconBan}" Style="{StaticResource SmallIconStyle}"
+                                      Stroke="{StaticResource UltraBrush}" />
+                                <TextBlock Text="{Binding BlockedDistractions}"
+                                           Foreground="{StaticResource UltraBrush}"
+                                           FontWeight="SemiBold"
+                                           FontSize="12"
+                                           Margin="7,0,0,0"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="bloqueadas"
+                                           Style="{StaticResource LabelTextStyle}"
+                                           Margin="4,0,0,0"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Duration -->
+                <StackPanel
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Margin="0,24,0,0"
+                            Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}">
+                    <ItemsControl ItemsSource="{Binding Presets}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type viewModels:DurationPreset}">
+                                <Button Content="{Binding Label}"
+                                        Style="{StaticResource ChipButtonStyle}"
+                                        Command="{Binding DataContext.SelectPresetCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Background="{Binding IsSelected, Converter={StaticResource BoolToResource},
+                                                             ConverterParameter=UltraSoftBrush|SurfaceSunkenBrush}"
+                                        BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToResource},
+                                                              ConverterParameter=UltraBrush|BorderBrush}"
+                                        Foreground="{Binding IsSelected, Converter={StaticResource BoolToResource},
+                                                             ConverterParameter=UltraBrush|TextSecondaryBrush}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBox Text="{Binding SelectedMinutes, UpdateSourceTrigger=PropertyChanged}"
+                             Width="78"
+                             TextAlignment="Center"
+                             ToolTip="Minutos personalizados"
+                             AutomationProperties.Name="Minutos ultra" />
+                    <TextBlock Text="min" Style="{StaticResource LabelTextStyle}"
+                               VerticalAlignment="Center" Margin="8,0,0,0" />
+                </StackPanel>
+
+                <!-- Action -->
+                <StackPanel HorizontalAlignment="Center" Margin="0,24,0,0">
+                    <Button Content="Iniciar enfoque ultra"
+                            Style="{StaticResource UltraButtonStyle}"
+                            Command="{Binding StartCommand}"
+                            Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}" />
+
+                    <Border Padding="20,13"
+                            CornerRadius="{StaticResource RadiusMedium}"
+                            Background="{StaticResource UltraSoftBrush}"
+                            Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconLock}" Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource UltraBrush}" />
+                            <TextBlock Text="Enfoque ultra en curso. Nos vemos cuando termine."
+                                       Foreground="{StaticResource UltraBrush}"
+                                       FontSize="13.5"
+                                       Margin="9,0,0,0"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <TextBlock
+                           Text="{Binding Warning}"
+                           Style="{StaticResource SubtitleTextStyle}"
+                           Foreground="{StaticResource DangerBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,12,0,0" />
             </StackPanel>
         </Border>
 
-        <!-- Countdown ring -->
-        <Grid Grid.Row="2" Width="240" Height="240" VerticalAlignment="Center">
-            <Ellipse Stroke="{StaticResource BorderBrush}" StrokeThickness="14" />
-
-            <controls:ProgressRing Fraction="{Binding ProgressFraction}"
-                                   Thickness="14"
-                                   Stroke="{StaticResource WarningBrush}"
-                                   StrokeThickness="14"
-                                   StrokeStartLineCap="Round"
-                                   StrokeEndLineCap="Round" />
-
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="{Binding RemainingText}"
-                           Foreground="{StaticResource TextPrimaryBrush}"
-                           FontSize="48"
-                           FontWeight="Light"
-                           HorizontalAlignment="Center" />
-
-                <TextBlock Style="{StaticResource LabelTextStyle}"
-                           HorizontalAlignment="Center"
-                           Margin="0,2,0,0"
-                           Text="sin cancelación posible"
-                           Foreground="{StaticResource WarningBrush}"
-                           Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" />
-
-                <Border Margin="0,12,0,0"
-                        Padding="10,4"
-                        CornerRadius="10"
-                        HorizontalAlignment="Center"
-                        Background="{StaticResource SurfaceRaisedBrush}"
-                        Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
+        <!-- Side panel: the terms -->
+        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,22,0,0">
+            <Border Style="{StaticResource CardStyle}" BorderBrush="{StaticResource UltraBrush}">
+                <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding BlockedDistractions}"
-                                   Foreground="{StaticResource WarningBrush}"
-                                   FontWeight="SemiBold"
-                                   FontSize="12" />
-                        <TextBlock Text=" distracciones bloqueadas"
-                                   Style="{StaticResource LabelTextStyle}" />
+                        <Path Data="{StaticResource IconUltra}" Style="{StaticResource SmallIconStyle}"
+                              Stroke="{StaticResource UltraBrush}" />
+                        <TextBlock Text="ANTES DE EMPEZAR"
+                                   Style="{StaticResource OverlineTextStyle}"
+                                   Foreground="{StaticResource UltraBrush}"
+                                   Margin="8,0,0,0"
+                                   VerticalAlignment="Center" />
                     </StackPanel>
-                </Border>
-            </StackPanel>
-        </Grid>
 
-        <!-- Duration -->
-        <StackPanel Grid.Row="3"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,20,0,0"
-                    Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}">
-            <ItemsControl ItemsSource="{Binding Presets}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type viewModels:DurationPreset}">
-                        <Button Content="{Binding Label}"
-                                Command="{Binding DataContext.SelectPresetCommand,
-                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ChipButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}" />
-                                            <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <Path Data="{StaticResource IconBan}" Style="{StaticResource SmallIconStyle}"
+                              Stroke="{StaticResource TextTertiaryBrush}" VerticalAlignment="Top" Margin="0,2,0,0" />
+                        <TextBlock Style="{StaticResource LabelTextStyle}"
+                                   Margin="10,0,0,0"
+                                   TextWrapping="Wrap"
+                                   Width="195"
+                                   Text="No hay botón de cancelar en ningún lado." />
+                    </StackPanel>
 
-            <TextBox Text="{Binding SelectedMinutes, UpdateSourceTrigger=PropertyChanged}"
-                     Width="64"
-                     Margin="8,0,0,0"
-                     TextAlignment="Center"
-                     ToolTip="Minutos personalizados"
-                     AutomationProperties.Name="Minutos ultra" />
-            <TextBlock Text="min" Style="{StaticResource LabelTextStyle}"
-                       VerticalAlignment="Center" Margin="8,0,0,0" />
-        </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Path Data="{StaticResource IconLock}" Style="{StaticResource SmallIconStyle}"
+                              Stroke="{StaticResource TextTertiaryBrush}" VerticalAlignment="Top" Margin="0,2,0,0" />
+                        <TextBlock Style="{StaticResource LabelTextStyle}"
+                                   Margin="10,0,0,0"
+                                   TextWrapping="Wrap"
+                                   Width="195"
+                                   Text="Cerrar la ventana no termina la sesión, y salir de la app queda deshabilitado." />
+                    </StackPanel>
 
-        <!-- Action -->
-        <StackPanel Grid.Row="4" HorizontalAlignment="Center" Margin="0,20,0,0">
-            <Button Content="Iniciar enfoque ultra"
-                    Command="{Binding StartCommand}"
-                    Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
-                        <Setter Property="Background" Value="{StaticResource WarningBrush}" />
-                        <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}" />
-                    </Style>
-                </Button.Style>
-            </Button>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Path Data="{StaticResource IconBlock}" Style="{StaticResource SmallIconStyle}"
+                              Stroke="{StaticResource TextTertiaryBrush}" VerticalAlignment="Top" Margin="0,2,0,0" />
+                        <TextBlock Text="{Binding BlocklistSummary}"
+                                   Style="{StaticResource LabelTextStyle}"
+                                   Margin="10,0,0,0"
+                                   TextWrapping="Wrap"
+                                   Width="195" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
 
-            <Border Style="{StaticResource CardStyle}"
-                    Padding="20,12"
-                    BorderBrush="{StaticResource WarningBrush}"
-                    Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Style="{StaticResource ValueTextStyle}"
-                           Foreground="{StaticResource WarningBrush}"
-                           Text="Enfoque ultra en curso. Nos vemos cuando termine." />
+            <Border Style="{StaticResource CardStyle}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="CUÁNDO USARLO" Style="{StaticResource OverlineTextStyle}" />
+                    <TextBlock Style="{StaticResource LabelTextStyle}"
+                               Margin="0,12,0,0"
+                               TextWrapping="Wrap"
+                               Text="Para lo que venís postergando hace días. Eleg&#237; un tiempo que puedas sostener: la única forma de salir antes es matar el proceso desde el Administrador de tareas." />
+                </StackPanel>
             </Border>
         </StackPanel>
-
-        <TextBlock Grid.Row="5"
-                   Text="{Binding Warning}"
-                   Style="{StaticResource SubtitleTextStyle}"
-                   Foreground="{StaticResource DangerBrush}"
-                   HorizontalAlignment="Center"
-                   Margin="0,12,0,0" />
     </Grid>
 </UserControl>

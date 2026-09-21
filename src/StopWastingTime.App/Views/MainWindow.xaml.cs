@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using H.NotifyIcon;
+using StopWastingTime.App.Infrastructure;
 using StopWastingTime.App.ViewModels;
 
 namespace StopWastingTime.App.Views;
@@ -30,6 +31,9 @@ public partial class MainWindow : Window
         DataContext = shell;
 
         InitializeComponent();
+
+        // With a custom caption, maximising has to be told where the taskbar is.
+        MaximizeBehaviour.Apply(this);
 
         Loaded += async (_, _) =>
         {

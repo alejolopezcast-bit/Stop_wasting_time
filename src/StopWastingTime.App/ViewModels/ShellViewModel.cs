@@ -1,10 +1,11 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StopWastingTime.Core.Sessions;
 
 namespace StopWastingTime.App.ViewModels;
 
-/// <summary>The main window: navigation between the three screens, and the state the window itself needs.</summary>
+/// <summary>The main window: navigation between the screens, and the state the window itself needs.</summary>
 public partial class ShellViewModel : ObservableObject
 {
     private readonly FocusSessionService _sessions;
@@ -15,7 +16,7 @@ public partial class ShellViewModel : ObservableObject
     [ObservableProperty]
     private string _trayTooltip = "Stop Wasting Time";
 
-    /// <summary>The countdown for the badge in the rail, whichever screen started the session.</summary>
+    /// <summary>The countdown shown in the caption bar, whichever screen started the session.</summary>
     [ObservableProperty]
     private string _remainingText = "00:00";
 
@@ -32,6 +33,14 @@ public partial class ShellViewModel : ObservableObject
         Stats = stats;
         _sessions = sessions;
         _currentPage = focus;
+
+        NavItems =
+        [
+            new NavItem("Enfoque", "IconFocus", focus) { IsSelected = true },
+            new NavItem("Enfoque ultra", "IconUltra", ultra),
+            new NavItem("Bloqueos", "IconBlock", blocklist),
+            new NavItem("Estadísticas", "IconStats", stats)
+        ];
 
         _sessions.SessionStarted += (_, _) => RaiseSessionState();
 
@@ -57,42 +66,43 @@ public partial class ShellViewModel : ObservableObject
 
     public StatsViewModel Stats { get; }
 
+    /// <summary>The navigation rail, as data: one entry per screen.</summary>
+    public ObservableCollection<NavItem> NavItems { get; }
+
     public bool IsSessionRunning => _sessions.IsRunning;
 
     /// <summary>While this is true the app refuses to close: that is the point of a strict session.</summary>
     public bool IsStrictSessionRunning => _sessions.Current?.IsStrict == true;
 
-    public bool IsFocusSelected => CurrentPage == Focus;
-
-    public bool IsUltraSelected => CurrentPage == Ultra;
-
-    public bool IsBlocklistSelected => CurrentPage == Blocklist;
-
-    public bool IsStatsSelected => CurrentPage == Stats;
+    /// <summary>An ultra session paints the caption amber rather than blue.</summary>
+    public bool IsUltraSessionRunning => _sessions.Current?.Label == UltraFocusViewModel.SessionLabel;
 
     [RelayCommand]
-    private void ShowFocus() => CurrentPage = Focus;
-
-    [RelayCommand]
-    private async Task ShowUltraAsync()
+    private async Task NavigateAsync(NavItem? item)
     {
-        // The summary has to be current: the blocklist may have changed since the app started.
-        await Ultra.RefreshBlocklistSummaryAsync();
-        CurrentPage = Ultra;
-    }
+        if (item is null || item.Page == CurrentPage)
+        {
+            return;
+        }
 
-    [RelayCommand]
-    private async Task ShowBlocklistAsync()
-    {
-        await Blocklist.LoadAsync();
-        CurrentPage = Blocklist;
-    }
+        // Each screen refreshes as it comes into view, so it never shows a stale number.
+        switch (item.Page)
+        {
+            case BlocklistViewModel blocklist:
+                await blocklist.LoadAsync();
+                break;
+            case UltraFocusViewModel ultra:
+                await ultra.RefreshBlocklistSummaryAsync();
+                break;
+            case StatsViewModel stats:
+                await stats.RefreshAsync();
+                break;
+            case FocusViewModel focus:
+                await focus.RefreshTodayAsync();
+                break;
+        }
 
-    [RelayCommand]
-    private async Task ShowStatsAsync()
-    {
-        await Stats.RefreshAsync();
-        CurrentPage = Stats;
+        CurrentPage = item.Page;
     }
 
     /// <summary>Loads everything the window shows on open.</summary>
@@ -108,13 +118,28 @@ public partial class ShellViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(IsSessionRunning));
         OnPropertyChanged(nameof(IsStrictSessionRunning));
+        OnPropertyChanged(nameof(IsUltraSessionRunning));
     }
 
     partial void OnCurrentPageChanged(ObservableObject value)
     {
-        OnPropertyChanged(nameof(IsFocusSelected));
-        OnPropertyChanged(nameof(IsUltraSelected));
-        OnPropertyChanged(nameof(IsBlocklistSelected));
-        OnPropertyChanged(nameof(IsStatsSelected));
+        foreach (var item in NavItems)
+        {
+            item.IsSelected = item.Page == value;
+        }
     }
+}
+
+/// <summary>One entry of the navigation rail.</summary>
+public partial class NavItem(string label, string iconKey, ObservableObject page) : ObservableObject
+{
+    [ObservableProperty]
+    private bool _isSelected;
+
+    public string Label { get; } = label;
+
+    /// <summary>Name of the geometry in the icon dictionary, so the view model holds no WPF types.</summary>
+    public string IconKey { get; } = iconKey;
+
+    public ObservableObject Page { get; } = page;
 }

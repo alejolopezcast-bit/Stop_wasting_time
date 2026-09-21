@@ -14,4 +14,10 @@ public sealed class BlockRule
     public required string DisplayName { get; set; }
 
     public bool IsEnabled { get; set; } = true;
+
+    /// <summary>
+    /// Where the program was last seen on disk, remembered so its icon can still be shown when it is
+    /// not running. Null for websites, and for apps never seen running.
+    /// </summary>
+    public string? IconPath { get; set; }
 }
