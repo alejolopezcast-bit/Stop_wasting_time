@@ -1,0 +1,46 @@
+<Window x:Class="StopWastingTime.App.Views.BlockToastWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Stop Wasting Time"
+        Width="340"
+        SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ShowActivated="False"
+        Focusable="False">
+
+    <Border Background="{StaticResource CardGradientBrush}"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{StaticResource RadiusLarge}"
+            Padding="16,14"
+            Effect="{StaticResource CardShadow}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource IconTileStyle}" Background="{StaticResource UltraSoftBrush}"
+                    VerticalAlignment="Top">
+                <Path Data="{StaticResource IconBan}" Style="{StaticResource SmallIconStyle}"
+                      Stroke="{StaticResource WarningBrush}" />
+            </Border>
+
+            <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                <TextBlock x:Name="TitleText"
+                           Text="Distracción bloqueada"
+                           Style="{StaticResource ValueTextStyle}"
+                           FontWeight="SemiBold" />
+
+                <TextBlock x:Name="DetailText"
+                           Style="{StaticResource LabelTextStyle}"
+                           TextWrapping="Wrap"
+                           Margin="0,4,0,0" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

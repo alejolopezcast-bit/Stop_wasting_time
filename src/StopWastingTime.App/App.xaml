@@ -1,9 +1,18 @@
-﻿<Application x:Class="StopWastingTime.App.App"
+<Application x:Class="StopWastingTime.App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:StopWastingTime.App"
-             StartupUri="MainWindow.xaml">
+             xmlns:infrastructure="clr-namespace:StopWastingTime.App.Infrastructure"
+             ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Palette.xaml" />
+                <ResourceDictionary Source="Themes/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <infrastructure:BooleanToResourceConverter x:Key="BoolToResource" />
+            <infrastructure:ResourceKeyConverter x:Key="ResourceKey" />
+            <infrastructure:EmptyStringToVisibilityConverter x:Key="EmptyToVisibility" />
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
