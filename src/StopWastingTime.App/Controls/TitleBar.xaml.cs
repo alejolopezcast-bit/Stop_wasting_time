@@ -1,5 +1,7 @@
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
+using StopWastingTime.App.Localization;
 
 namespace StopWastingTime.App.Controls;
 
@@ -67,7 +69,10 @@ public partial class TitleBar : UserControl
         var maximized = window.WindowState == WindowState.Maximized;
 
         MaximizeIcon.Data = (System.Windows.Media.Geometry)FindResource(maximized ? "IconRestore" : "IconMaximize");
-        MaximizeButton.ToolTip = maximized ? "Restaurar" : "Maximizar";
+
+        var label = maximized ? "Caption_Restore" : "Caption_Maximize";
+        MaximizeButton.SetBinding(ToolTipProperty, Localizer.Bind(label));
+        MaximizeButton.SetBinding(AutomationProperties.NameProperty, Localizer.Bind(label));
     }
 
     private void OnMinimizeClick(object sender, RoutedEventArgs e)

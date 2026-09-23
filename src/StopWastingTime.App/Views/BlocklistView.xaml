@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
+             xmlns:loc="clr-namespace:StopWastingTime.App.Localization"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewModels:BlocklistViewModel}"
              d:DesignHeight="700"
@@ -61,8 +62,8 @@
                             Command="{Binding DataContext.RemoveCommand,
                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
-                            ToolTip="Quitar de la lista"
-                            AutomationProperties.Name="{Binding DisplayName, StringFormat='Quitar {0}'}">
+                            ToolTip="{loc:Tr Blocklist_Remove_Tooltip}"
+                            AutomationProperties.Name="{Binding RemoveName}">
                         <Path Data="{StaticResource IconTrash}" Style="{StaticResource SmallIconStyle}"
                               Stroke="{StaticResource DangerBrush}" />
                     </Button>
@@ -90,10 +91,10 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
-            <TextBlock Text="Bloqueos" Style="{StaticResource TitleTextStyle}" />
+            <TextBlock Text="{loc:Tr Blocklist_Title}" Style="{StaticResource TitleTextStyle}" />
             <TextBlock Style="{StaticResource SubtitleTextStyle}"
                        Margin="0,4,0,0"
-                       Text="Lo que esté activado se bloquea mientras dure una sesión. Fuera de la sesión no se toca nada." />
+                       Text="{loc:Tr Blocklist_Subtitle}" />
         </StackPanel>
 
         <!-- Apps -->
@@ -113,7 +114,7 @@
                                   Stroke="{StaticResource AccentBrightBrush}" />
                         </Border>
                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Apps" Style="{StaticResource SectionTextStyle}" />
+                            <TextBlock Text="{loc:Tr Blocklist_Apps}" Style="{StaticResource SectionTextStyle}" />
                             <TextBlock Text="{Binding AppsCountText}" Style="{StaticResource LabelTextStyle}" />
                         </StackPanel>
                     </StackPanel>
@@ -128,9 +129,9 @@
 
                     <Grid Grid.Column="0">
                         <TextBox Text="{Binding NewAppName, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="Nombre del ejecutable, por ejemplo steam"
-                                 AutomationProperties.Name="Nombre de la app" />
-                        <TextBlock Text="Nombre del programa, por ejemplo steam"
+                                 ToolTip="{loc:Tr Blocklist_AppName_Tooltip}"
+                                 AutomationProperties.Name="{loc:Tr Blocklist_AppName_Name}" />
+                        <TextBlock Text="{loc:Tr Blocklist_AppName_Placeholder}"
                                    Style="{StaticResource LabelTextStyle}"
                                    Foreground="{StaticResource TextTertiaryBrush}"
                                    Margin="13,0,0,0"
@@ -140,12 +141,12 @@
                     </Grid>
                     <Button Grid.Column="1" Margin="8,0,0,0"
                             Command="{Binding AddAppCommand}"
-                            AutomationProperties.Name="Agregar app"
-                            ToolTip="Agregar a la lista">
+                            AutomationProperties.Name="{loc:Tr Blocklist_AddApp_Name}"
+                            ToolTip="{loc:Tr Blocklist_Add_Tooltip}">
                         <StackPanel Orientation="Horizontal">
                             <Path Data="{StaticResource IconPlus}" Style="{StaticResource SmallIconStyle}"
                                   Stroke="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="Agregar" Margin="7,0,0,0" />
+                            <TextBlock Text="{loc:Tr Blocklist_Add}" Margin="7,0,0,0" />
                         </StackPanel>
                     </Button>
                 </Grid>
@@ -162,7 +163,7 @@
                         <Path Data="{StaticResource IconApp}" Style="{StaticResource IconStyle}"
                               Width="30" Height="30" Stroke="{StaticResource TextTertiaryBrush}"
                               HorizontalAlignment="Center" Opacity="0.5" />
-                        <TextBlock Text="Todavía no hay apps en la lista"
+                        <TextBlock Text="{loc:Tr Blocklist_NoApps}"
                                    Style="{StaticResource LabelTextStyle}"
                                    Margin="0,10,0,0" />
                     </StackPanel>
@@ -172,12 +173,12 @@
                 <Border Grid.Row="3" Style="{StaticResource InnerCardStyle}" Margin="0,14,0,0">
                     <StackPanel>
                         <Grid>
-                            <TextBlock Text="ABIERTOS AHORA" Style="{StaticResource OverlineTextStyle}" />
+                            <TextBlock Text="{loc:Tr Blocklist_RunningNow}" Style="{StaticResource OverlineTextStyle}" />
                             <Button HorizontalAlignment="Right"
                                     Style="{StaticResource GhostButtonStyle}"
                                     Command="{Binding RefreshProcessesCommand}"
-                                    ToolTip="Actualizar lista"
-                                    AutomationProperties.Name="Actualizar lista">
+                                    ToolTip="{loc:Tr Blocklist_Refresh}"
+                                    AutomationProperties.Name="{loc:Tr Blocklist_Refresh}">
                                 <Path Data="{StaticResource IconRefresh}" Style="{StaticResource SmallIconStyle}"
                                       Stroke="{StaticResource TextTertiaryBrush}" />
                             </Button>
@@ -199,7 +200,7 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
 
-                        <Button Content="Agregar seleccionado"
+                        <Button Content="{loc:Tr Blocklist_AddSelected}"
                                 Margin="0,8,0,0"
                                 HorizontalAlignment="Stretch"
                                 Command="{Binding AddSelectedProcessCommand}" />
@@ -224,7 +225,7 @@
                               Stroke="{StaticResource AccentBrightBrush}" />
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Sitios" Style="{StaticResource SectionTextStyle}" />
+                        <TextBlock Text="{loc:Tr Blocklist_Sites}" Style="{StaticResource SectionTextStyle}" />
                         <TextBlock Text="{Binding SitesCountText}" Style="{StaticResource LabelTextStyle}" />
                     </StackPanel>
                 </StackPanel>
@@ -237,9 +238,9 @@
 
                     <Grid Grid.Column="0">
                         <TextBox Text="{Binding NewSiteDomain, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="Dominio, por ejemplo instagram.com"
-                                 AutomationProperties.Name="Dominio del sitio" />
-                        <TextBlock Text="Dominio, por ejemplo instagram.com"
+                                 ToolTip="{loc:Tr Blocklist_Domain_Hint}"
+                                 AutomationProperties.Name="{loc:Tr Blocklist_Domain_Name}" />
+                        <TextBlock Text="{loc:Tr Blocklist_Domain_Hint}"
                                    Style="{StaticResource LabelTextStyle}"
                                    Foreground="{StaticResource TextTertiaryBrush}"
                                    Margin="13,0,0,0"
@@ -249,12 +250,12 @@
                     </Grid>
                     <Button Grid.Column="1" Margin="8,0,0,0"
                             Command="{Binding AddSiteCommand}"
-                            AutomationProperties.Name="Agregar sitio"
-                            ToolTip="Agregar a la lista">
+                            AutomationProperties.Name="{loc:Tr Blocklist_AddSite_Name}"
+                            ToolTip="{loc:Tr Blocklist_Add_Tooltip}">
                         <StackPanel Orientation="Horizontal">
                             <Path Data="{StaticResource IconPlus}" Style="{StaticResource SmallIconStyle}"
                                   Stroke="{StaticResource TextPrimaryBrush}" />
-                            <TextBlock Text="Agregar" Margin="7,0,0,0" />
+                            <TextBlock Text="{loc:Tr Blocklist_Add}" Margin="7,0,0,0" />
                         </StackPanel>
                     </Button>
                 </Grid>
@@ -270,7 +271,7 @@
                         <Path Data="{StaticResource IconGlobe}" Style="{StaticResource IconStyle}"
                               Width="30" Height="30" Stroke="{StaticResource TextTertiaryBrush}"
                               HorizontalAlignment="Center" Opacity="0.5" />
-                        <TextBlock Text="Todavía no hay sitios en la lista"
+                        <TextBlock Text="{loc:Tr Blocklist_NoSites}"
                                    Style="{StaticResource LabelTextStyle}"
                                    Margin="0,10,0,0" />
                     </StackPanel>
@@ -288,14 +289,14 @@
                                    Style="{StaticResource LabelTextStyle}"
                                    Margin="10,0,0,0"
                                    TextWrapping="Wrap"
-                                   Text="Se bloquea el dominio, no el navegador: podés seguir trabajando con el resto de la web." />
+                                   Text="{loc:Tr Blocklist_SitesNote}" />
                     </Grid>
                 </Border>
             </Grid>
         </Border>
 
         <TextBlock Grid.Row="1" Grid.ColumnSpan="3"
-                   Text="{Binding Error}"
+                   Text="{Binding Error.Text}"
                    Style="{StaticResource LabelTextStyle}"
                    Foreground="{StaticResource DangerBrush}"
                    VerticalAlignment="Bottom"

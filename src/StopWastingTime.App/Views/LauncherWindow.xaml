@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:controls="clr-namespace:StopWastingTime.App.Controls"
-        xmlns:infrastructure="clr-namespace:StopWastingTime.App.Infrastructure"
+        xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
+        xmlns:loc="clr-namespace:StopWastingTime.App.Localization"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=infrastructure:StartupReport}"
+        d:DataContext="{d:DesignInstance Type=viewModels:LauncherViewModel}"
         Title="Stop Wasting Time"
         Icon="../Assets/app.ico"
         Height="640"
@@ -63,8 +64,14 @@
                            TextAlignment="Center"
                            MaxWidth="340"
                            Margin="0,6,0,0"
-                           Text="Bloqueá lo que te distrae mientras te concentrás, y mirá después cuántas veces lo lograste." />
+                           Text="{loc:Tr Launcher_Tagline}" />
             </StackPanel>
+
+            <controls:LanguagePicker Grid.Row="1"
+                                     Compact="True"
+                                     HorizontalAlignment="Right"
+                                     VerticalAlignment="Top"
+                                     Margin="0,6,18,0" />
 
             <!-- The one button that matters -->
             <StackPanel Grid.Row="2" Margin="36,26,36,0">
@@ -73,7 +80,7 @@
                         HorizontalAlignment="Stretch"
                         Click="OnPrimaryActionClick" />
 
-                <Button Content="Abrir igual, sin bloqueo de sitios"
+                <Button Content="{loc:Tr Launcher_OpenAnyway}"
                         Margin="0,10,0,0"
                         HorizontalAlignment="Stretch"
                         Click="OnOpenAnywayClick"
@@ -83,7 +90,7 @@
             <!-- Startup status -->
             <Border Grid.Row="3" Style="{StaticResource CardStyle}" Margin="36,20,36,0" Padding="18,16">
                 <StackPanel>
-                    <TextBlock Text="ESTADO DEL ARRANQUE" Style="{StaticResource OverlineTextStyle}" />
+                    <TextBlock Text="{loc:Tr Launcher_Status}" Style="{StaticResource OverlineTextStyle}" />
 
                     <Grid Margin="0,14,0,0">
                         <Grid.ColumnDefinitions>
@@ -98,7 +105,7 @@
                                                    ConverterParameter=SuccessBrush|WarningBrush}" />
                         </Border>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Permisos de administrador" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{loc:Tr Launcher_Admin}" Style="{StaticResource LabelTextStyle}" />
                             <TextBlock Text="{Binding ElevationText}" Style="{StaticResource ValueTextStyle}" />
                         </StackPanel>
                     </Grid>
@@ -113,7 +120,7 @@
                                   Stroke="{StaticResource AccentBrightBrush}" />
                         </Border>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Lista de bloqueo" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{loc:Tr Launcher_Blocklist}" Style="{StaticResource LabelTextStyle}" />
                             <TextBlock Text="{Binding RulesText}" Style="{StaticResource ValueTextStyle}" />
                         </StackPanel>
                     </Grid>
@@ -128,7 +135,7 @@
                                   Stroke="{StaticResource AccentBrightBrush}" />
                         </Border>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Base de datos" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{loc:Tr Launcher_Database}" Style="{StaticResource LabelTextStyle}" />
                             <TextBlock Text="{Binding DatabasePath}" Style="{StaticResource ValueTextStyle}"
                                        ToolTip="{Binding DatabasePath}" />
                         </StackPanel>
@@ -152,14 +159,14 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource GhostButtonStyle}"
                             Click="OnOpenDataFolderClick"
-                            ToolTip="Abrir la carpeta de datos">
+                            ToolTip="{loc:Tr Launcher_DataFolder_Tooltip}">
                         <StackPanel Orientation="Horizontal">
                             <Path Data="{StaticResource IconFolder}" Style="{StaticResource SmallIconStyle}"
                                   Stroke="{StaticResource TextTertiaryBrush}" />
-                            <TextBlock Text="Carpeta de datos" Margin="7,0,0,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{loc:Tr Launcher_DataFolder}" Margin="7,0,0,0" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button Content="Salir" Margin="8,0,0,0" Click="OnCloseClick" />
+                    <Button Content="{loc:Tr Common_Exit}" Margin="8,0,0,0" Click="OnCloseClick" />
                 </StackPanel>
             </Grid>
         </Grid>

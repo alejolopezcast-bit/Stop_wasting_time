@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using StopWastingTime.App.Localization;
 using StopWastingTime.Core.Blocking;
 using StopWastingTime.Core.Data;
 using StopWastingTime.Core.Models;
@@ -15,6 +16,7 @@ public partial class FocusViewModel : ObservableObject
     private readonly StatsService _stats;
     private readonly BlockRuleRepository _rules;
     private readonly HostsFileBlocker _hostsBlocker;
+    private readonly Localizer _localizer;
 
     [ObservableProperty]
     private int _selectedMinutes = DurationPreset.DefaultMinutes;
@@ -34,38 +36,47 @@ public partial class FocusViewModel : ObservableObject
     [ObservableProperty]
     private int _blockedDistractions;
 
-    [ObservableProperty]
-    private string? _warning;
-
-    [ObservableProperty]
-    private string? _lastResult;
-
     // The side panel: what today looks like so far, and what a session would take away.
     [ObservableProperty]
-    private string _todaySessionsText = "0";
+    private string _todaySessionsText = string.Empty;
 
     [ObservableProperty]
-    private string _todayFocusedText = "0 min";
+    private string _todayFocusedText = string.Empty;
 
     [ObservableProperty]
-    private string _streakText = "0";
+    private string _streakText = string.Empty;
 
     [ObservableProperty]
-    private string _blockedAppsText = "0 apps";
+    private string _blockedAppsText = string.Empty;
 
     [ObservableProperty]
-    private string _blockedSitesText = "0 sitios";
+    private string _blockedSitesText = string.Empty;
 
     public FocusViewModel(
         FocusSessionService sessions,
         StatsService stats,
         BlockRuleRepository rules,
-        HostsFileBlocker hostsBlocker)
+        HostsFileBlocker hostsBlocker,
+        Localizer localizer)
     {
         _sessions = sessions;
         _stats = stats;
         _rules = rules;
         _hostsBlocker = hostsBlocker;
+        _localizer = localizer;
+
+        Warning = new LocalizedText(localizer);
+        LastResult = new LocalizedText(localizer);
+
+        Presets =
+        [
+            new DurationPreset(25, localizer),
+            new DurationPreset(45, localizer),
+            new DurationPreset(60, localizer),
+            new DurationPreset(90, localizer)
+        ];
+
+        RenderToday(completed: 0, focused: TimeSpan.Zero, streak: 0, apps: 0, sites: 0);
 
         _sessions.Progressed += (_, progress) =>
         {
@@ -89,17 +100,31 @@ public partial class FocusViewModel : ObservableObject
             IsRunning = false;
             ProgressFraction = 0;
             RemainingText = FormatMinutes(SelectedMinutes);
-            LastResult = session.Status == SessionStatus.Completed
-                ? $"Sesión completada: {session.PlannedMinutes} minutos de concentración."
-                : $"Sesión abandonada a los {(int)session.Elapsed.TotalMinutes} minutos.";
+
+            var planned = session.PlannedMinutes;
+            var elapsed = (int)session.Elapsed.TotalMinutes;
+
+            if (session.Status == SessionStatus.Completed)
+            {
+                LastResult.Set(text => text.Plural("Focus_Completed", planned));
+            }
+            else
+            {
+                LastResult.Set(text => text.Plural("Focus_Aborted", elapsed));
+            }
 
             await RefreshTodayAsync();
         };
     }
 
     /// <summary>The usual pomodoro-ish durations, one click away.</summary>
-    public IReadOnlyList<DurationPreset> Presets { get; } =
-        [new DurationPreset(25), new DurationPreset(45), new DurationPreset(60), new DurationPreset(90)];
+    public IReadOnlyList<DurationPreset> Presets { get; }
+
+    /// <summary>Something that needs attention, such as a duration out of range.</summary>
+    public LocalizedText Warning { get; }
+
+    /// <summary>How the last session went.</summary>
+    public LocalizedText LastResult { get; }
 
     public bool CanEditSettings => !IsRunning;
 
@@ -130,12 +155,13 @@ public partial class FocusViewModel : ObservableObject
 
         if (SelectedMinutes is < FocusSessionService.MinimumMinutes or > FocusSessionService.MaximumMinutes)
         {
-            Warning = $"Elegí entre {FocusSessionService.MinimumMinutes} y {FocusSessionService.MaximumMinutes} minutos.";
+            Warning.Set(text => text.Format(
+                "Validation_MinutesRange", FocusSessionService.MinimumMinutes, FocusSessionService.MaximumMinutes));
             return;
         }
 
-        Warning = null;
-        LastResult = null;
+        Warning.Clear();
+        LastResult.Clear();
 
         await _sessions.StartAsync(SelectedMinutes, IsStrict);
 
@@ -143,7 +169,10 @@ public partial class FocusViewModel : ObservableObject
         BlockedDistractions = 0;
 
         // The apps are blocked either way; only the site blocking needs administrator rights.
-        Warning = _hostsBlocker.LastError;
+        if (_hostsBlocker.LastProblem is { } problem)
+        {
+            Warning.Set(text => text[HostsProblemKey(problem)]);
+        }
     }
 
     [RelayCommand]
@@ -162,16 +191,41 @@ public partial class FocusViewModel : ObservableObject
         var today = DateOnly.FromDateTime(DateTime.Now);
         var totals = await _stats.GetTotalsAsync(StatsPeriod.Day, today);
 
-        TodaySessionsText = totals.CompletedSessions.ToString(System.Globalization.CultureInfo.CurrentCulture);
-        TodayFocusedText = FormatDuration(totals.FocusedTime);
-        StreakText = totals.CurrentStreak.ToString(System.Globalization.CultureInfo.CurrentCulture);
-
         var rules = await _rules.GetEnabledAsync();
-        var apps = rules.Count(rule => rule.Kind == BlockKind.Process);
-        var sites = rules.Count(rule => rule.Kind == BlockKind.Website);
 
-        BlockedAppsText = $"{apps} {(apps == 1 ? "app" : "apps")}";
-        BlockedSitesText = $"{sites} {(sites == 1 ? "sitio" : "sitios")}";
+        RenderToday(
+            totals.CompletedSessions,
+            totals.FocusedTime,
+            totals.CurrentStreak,
+            apps: rules.Count(rule => rule.Kind == BlockKind.Process),
+            sites: rules.Count(rule => rule.Kind == BlockKind.Website));
+    }
+
+    /// <summary>Everything this screen had written out goes again, in the language just picked.</summary>
+    public async Task ApplyLanguageAsync()
+    {
+        foreach (var preset in Presets)
+        {
+            preset.RefreshLabel();
+        }
+
+        await RefreshTodayAsync();
+    }
+
+    /// <summary>The words that go with a hosts file failure.</summary>
+    private static string HostsProblemKey(HostsFileProblem problem) => problem switch
+    {
+        HostsFileProblem.AccessDenied => "Hosts_AccessDenied",
+        _ => "Hosts_WriteFailed"
+    };
+
+    private void RenderToday(int completed, TimeSpan focused, int streak, int apps, int sites)
+    {
+        TodaySessionsText = completed.ToString(_localizer.Culture);
+        TodayFocusedText = _localizer.Duration(focused);
+        StreakText = streak.ToString(_localizer.Culture);
+        BlockedAppsText = _localizer.Plural("Count_Apps", apps);
+        BlockedSitesText = _localizer.Plural("Count_Sites", sites);
     }
 
     partial void OnIsRunningChanged(bool value)
@@ -203,10 +257,6 @@ public partial class FocusViewModel : ObservableObject
     private static string FormatMinutes(int minutes) => minutes >= 60
         ? $"{minutes / 60}:{minutes % 60:00}:00"
         : $"{minutes:00}:00";
-
-    public static string FormatDuration(TimeSpan duration) => duration.TotalHours >= 1
-        ? $"{(int)duration.TotalHours} h {duration.Minutes} min"
-        : $"{(int)duration.TotalMinutes} min";
 }
 
 /// <summary>A one click session length.</summary>
@@ -215,16 +265,21 @@ public partial class DurationPreset : ObservableObject
     /// <summary>The preset that starts out chosen.</summary>
     public const int DefaultMinutes = 25;
 
+    private readonly Localizer _localizer;
+
     [ObservableProperty]
     private bool _isSelected;
 
-    public DurationPreset(int minutes)
+    public DurationPreset(int minutes, Localizer localizer)
     {
+        _localizer = localizer;
         Minutes = minutes;
         IsSelected = minutes == DefaultMinutes;
     }
 
     public int Minutes { get; }
 
-    public string Label => $"{Minutes} min";
+    public string Label => _localizer.Format("Duration_Minutes", Minutes);
+
+    public void RefreshLabel() => OnPropertyChanged(nameof(Label));
 }

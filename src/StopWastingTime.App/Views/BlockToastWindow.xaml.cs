@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using StopWastingTime.App.Localization;
 
 namespace StopWastingTime.App.Views;
 
@@ -15,21 +16,21 @@ public partial class BlockToastWindow : Window
     /// <summary>Gap between the notice and the edge of the screen.</summary>
     private const double ScreenMargin = 24;
 
-    public BlockToastWindow(string displayName, string? remaining)
+    public BlockToastWindow(string displayName, string? remaining, Localizer localizer)
     {
         InitializeComponent();
 
         DetailText.Text = remaining is null
-            ? $"{displayName} se cerró porque está en tu lista de bloqueo."
-            : $"{displayName} se cerró. Quedan {remaining} de concentración.";
+            ? localizer.Format("Toast_Closed", displayName)
+            : localizer.Format("Toast_ClosedWithTime", displayName, remaining);
 
         Loaded += OnLoaded;
     }
 
     /// <summary>Shows a notice above the tray area, then lets it fade away.</summary>
-    public static void ShowFor(string displayName, string? remaining)
+    public static void ShowFor(string displayName, string? remaining, Localizer localizer)
     {
-        var toast = new BlockToastWindow(displayName, remaining);
+        var toast = new BlockToastWindow(displayName, remaining, localizer);
         toast.Show();
     }
 

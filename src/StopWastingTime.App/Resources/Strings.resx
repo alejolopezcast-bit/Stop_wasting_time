@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English, and the fallback for any language without a translation. Every key here must also exist in each Strings.xx.resx; the tests check. -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_AlreadyRunning" xml:space="preserve">
+    <value>Stop Wasting Time is already open. Look for its window, or for its icon in the system tray.</value>
+  </data>
+  <data name="App_FatalError" xml:space="preserve">
+    <value>Stop Wasting Time ran into an error:</value>
+    <comment>Followed by the error message.</comment>
+  </data>
+  <data name="App_FatalError_Log" xml:space="preserve">
+    <value>The details were written to {0}</value>
+    <comment>{0} is the path of the log file.</comment>
+  </data>
+  <data name="Common_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Language_Title" xml:space="preserve">
+    <value>LANGUAGE</value>
+  </data>
+  <data name="Nav_Focus" xml:space="preserve">
+    <value>Focus</value>
+  </data>
+  <data name="Nav_Ultra" xml:space="preserve">
+    <value>Ultra focus</value>
+  </data>
+  <data name="Nav_Blocklist" xml:space="preserve">
+    <value>Blocklist</value>
+  </data>
+  <data name="Nav_Stats" xml:space="preserve">
+    <value>Statistics</value>
+  </data>
+  <data name="Shell_Tagline" xml:space="preserve">
+    <value>Focus sessions</value>
+    <comment>Shown under the app name in the navigation rail.</comment>
+  </data>
+  <data name="Shell_OfFocus" xml:space="preserve">
+    <value>of focus left</value>
+    <comment>Follows the countdown in the caption, as in '24:13 of focus left'.</comment>
+  </data>
+  <data name="Shell_SessionRunning" xml:space="preserve">
+    <value>SESSION RUNNING</value>
+  </data>
+  <data name="Shell_Remaining" xml:space="preserve">
+    <value>remaining</value>
+    <comment>Under the countdown in the navigation rail.</comment>
+  </data>
+  <data name="Caption_Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="Caption_Maximize" xml:space="preserve">
+    <value>Maximize</value>
+  </data>
+  <data name="Caption_Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Caption_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Tray_Show" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="Tray_Tooltip" xml:space="preserve">
+    <value>{0} of focus left</value>
+    <comment>{0} is the countdown, such as 24:13.</comment>
+  </data>
+  <data name="Tray_StrictNoExit" xml:space="preserve">
+    <value>A session that cannot be cancelled is running. The app cannot be closed until it ends.</value>
+  </data>
+  <data name="Tray_StillRunning" xml:space="preserve">
+    <value>The session is still running. The app stays in the system tray.</value>
+  </data>
+  <data name="Tray_Explain" xml:space="preserve">
+    <value>The app stays in the tray. To close it completely, use Exit in the icon's menu.</value>
+    <comment>Names the Common_Exit menu entry.</comment>
+  </data>
+  <data name="Unit_Minutes" xml:space="preserve">
+    <value>min</value>
+  </data>
+  <data name="Duration_Minutes" xml:space="preserve">
+    <value>{0} min</value>
+    <comment>{0} is a number of minutes.</comment>
+  </data>
+  <data name="Duration_HoursMinutes" xml:space="preserve">
+    <value>{0} h {1} min</value>
+    <comment>{0} hours, {1} minutes.</comment>
+  </data>
+  <data name="Count_Apps_One" xml:space="preserve">
+    <value>{0} app</value>
+  </data>
+  <data name="Count_Apps_Other" xml:space="preserve">
+    <value>{0} apps</value>
+  </data>
+  <data name="Count_Sites_One" xml:space="preserve">
+    <value>{0} site</value>
+  </data>
+  <data name="Count_Sites_Other" xml:space="preserve">
+    <value>{0} sites</value>
+  </data>
+  <data name="Validation_MinutesRange" xml:space="preserve">
+    <value>Pick between {0} and {1} minutes.</value>
+    <comment>{0} is the shortest session, {1} the longest.</comment>
+  </data>
+  <data name="Timer_Remaining" xml:space="preserve">
+    <value>REMAINING</value>
+  </data>
+  <data name="Timer_Blocked" xml:space="preserve">
+    <value>blocked</value>
+    <comment>Follows the number of distractions blocked in this session.</comment>
+  </data>
+  <data name="Timer_CustomMinutes" xml:space="preserve">
+    <value>Custom minutes</value>
+  </data>
+  <data name="Focus_Title" xml:space="preserve">
+    <value>Focus</value>
+  </data>
+  <data name="Focus_Subtitle" xml:space="preserve">
+    <value>Choose how long you need to focus. While it lasts, nothing on your list will open.</value>
+  </data>
+  <data name="Focus_Ready" xml:space="preserve">
+    <value>READY TO START</value>
+  </data>
+  <data name="Focus_Minutes_Name" xml:space="preserve">
+    <value>Minutes</value>
+  </data>
+  <data name="Focus_Strict" xml:space="preserve">
+    <value>Strict session</value>
+  </data>
+  <data name="Focus_Strict_Hint" xml:space="preserve">
+    <value>Cannot be cancelled until it ends</value>
+  </data>
+  <data name="Focus_Start" xml:space="preserve">
+    <value>Start focusing</value>
+  </data>
+  <data name="Focus_Cancel" xml:space="preserve">
+    <value>Cancel session</value>
+  </data>
+  <data name="Focus_StrictRunning" xml:space="preserve">
+    <value>Strict session in progress</value>
+  </data>
+  <data name="Focus_Today" xml:space="preserve">
+    <value>TODAY</value>
+  </data>
+  <data name="Focus_Today_Sessions" xml:space="preserve">
+    <value>times you focused</value>
+  </data>
+  <data name="Focus_Today_Time" xml:space="preserve">
+    <value>time focused</value>
+  </data>
+  <data name="Focus_Today_Streak" xml:space="preserve">
+    <value>days in a row</value>
+  </data>
+  <data name="Focus_WillBlock" xml:space="preserve">
+    <value>WILL BE BLOCKED</value>
+  </data>
+  <data name="Focus_BrowserNote" xml:space="preserve">
+    <value>Your browser keeps working: only the sites on the list stop loading.</value>
+  </data>
+  <data name="Focus_Completed_One" xml:space="preserve">
+    <value>Session completed: {0} minute of focus.</value>
+  </data>
+  <data name="Focus_Completed_Other" xml:space="preserve">
+    <value>Session completed: {0} minutes of focus.</value>
+  </data>
+  <data name="Focus_Aborted_One" xml:space="preserve">
+    <value>Session abandoned after {0} minute.</value>
+  </data>
+  <data name="Focus_Aborted_Other" xml:space="preserve">
+    <value>Session abandoned after {0} minutes.</value>
+  </data>
+  <data name="Hosts_AccessDenied" xml:space="preserve">
+    <value>Without administrator rights the hosts file cannot be edited.</value>
+  </data>
+  <data name="Hosts_WriteFailed" xml:space="preserve">
+    <value>The hosts file could not be written. Your antivirus may be holding it.</value>
+  </data>
+  <data name="Ultra_Title" xml:space="preserve">
+    <value>Ultra focus</value>
+  </data>
+  <data name="Ultra_Badge" xml:space="preserve">
+    <value>NO WAY OUT</value>
+  </data>
+  <data name="Ultra_Subtitle" xml:space="preserve">
+    <value>You pick the time and there is no going back: it cannot be cancelled, the app will not close, and your whole list is blocked.</value>
+  </data>
+  <data name="Ultra_NoCancel" xml:space="preserve">
+    <value>NO CANCELLING</value>
+  </data>
+  <data name="Ultra_Ready" xml:space="preserve">
+    <value>READY TO COMMIT</value>
+  </data>
+  <data name="Ultra_Minutes_Name" xml:space="preserve">
+    <value>Ultra minutes</value>
+  </data>
+  <data name="Ultra_Start" xml:space="preserve">
+    <value>Start ultra focus</value>
+  </data>
+  <data name="Ultra_Running" xml:space="preserve">
+    <value>Ultra focus in progress. See you when it is over.</value>
+  </data>
+  <data name="Ultra_BeforeYouStart" xml:space="preserve">
+    <value>BEFORE YOU START</value>
+  </data>
+  <data name="Ultra_Term_NoCancel" xml:space="preserve">
+    <value>There is no cancel button anywhere.</value>
+  </data>
+  <data name="Ultra_Term_NoClose" xml:space="preserve">
+    <value>Closing the window does not end the session, and exiting the app is disabled.</value>
+  </data>
+  <data name="Ultra_WhenToUse" xml:space="preserve">
+    <value>WHEN TO USE IT</value>
+  </data>
+  <data name="Ultra_WhenToUse_Text" xml:space="preserve">
+    <value>For the thing you have been putting off for days. Pick a time you can keep up: the only way out early is to kill the process from Task Manager.</value>
+  </data>
+  <data name="Ultra_Summary_Default" xml:space="preserve">
+    <value>Your whole list gets blocked.</value>
+  </data>
+  <data name="Ultra_Summary_All" xml:space="preserve">
+    <value>{0} and {1} get blocked: your whole list.</value>
+    <comment>{0} is a number of apps, such as '3 apps'; {1} a number of sites.</comment>
+  </data>
+  <data name="Ultra_Summary_OneDisabled" xml:space="preserve">
+    <value>{0} and {1} get blocked: your whole list, including the one you switched off.</value>
+    <comment>{0} is a number of apps, {1} a number of sites.</comment>
+  </data>
+  <data name="Ultra_Summary_ManyDisabled" xml:space="preserve">
+    <value>{0} and {1} get blocked: your whole list, including the {2} you switched off.</value>
+    <comment>{0} is a number of apps, {1} a number of sites, {2} how many are switched off.</comment>
+  </data>
+  <data name="Ultra_Confirm_Duration_One" xml:space="preserve">
+    <value>You are about to block everything for {0} minute.</value>
+  </data>
+  <data name="Ultra_Confirm_Duration_Other" xml:space="preserve">
+    <value>You are about to block everything for {0} minutes.</value>
+  </data>
+  <data name="Ultra_Confirm_Terms" xml:space="preserve">
+    <value>You will not be able to cancel the session or close the app until it ends, and the whole list is blocked, even what you switched off.</value>
+  </data>
+  <data name="Ultra_Confirm_Question" xml:space="preserve">
+    <value>Go ahead?</value>
+  </data>
+  <data name="Blocklist_Title" xml:space="preserve">
+    <value>Blocklist</value>
+  </data>
+  <data name="Blocklist_Subtitle" xml:space="preserve">
+    <value>Whatever is switched on gets blocked while a session lasts. Outside a session nothing is touched.</value>
+  </data>
+  <data name="Blocklist_Apps" xml:space="preserve">
+    <value>Apps</value>
+  </data>
+  <data name="Blocklist_Sites" xml:space="preserve">
+    <value>Sites</value>
+  </data>
+  <data name="Blocklist_AppsCount_One" xml:space="preserve">
+    <value>{1} of {0} app switched on</value>
+    <comment>{0} is how many apps there are, {1} how many are switched on.</comment>
+  </data>
+  <data name="Blocklist_AppsCount_Other" xml:space="preserve">
+    <value>{1} of {0} apps switched on</value>
+    <comment>{0} is how many apps there are, {1} how many are switched on.</comment>
+  </data>
+  <data name="Blocklist_SitesCount_One" xml:space="preserve">
+    <value>{1} of {0} site switched on</value>
+    <comment>{0} is how many sites there are, {1} how many are switched on.</comment>
+  </data>
+  <data name="Blocklist_SitesCount_Other" xml:space="preserve">
+    <value>{1} of {0} sites switched on</value>
+    <comment>{0} is how many sites there are, {1} how many are switched on.</comment>
+  </data>
+  <data name="Blocklist_AppName_Tooltip" xml:space="preserve">
+    <value>Name of the executable, for example steam</value>
+  </data>
+  <data name="Blocklist_AppName_Name" xml:space="preserve">
+    <value>App name</value>
+  </data>
+  <data name="Blocklist_AppName_Placeholder" xml:space="preserve">
+    <value>Program name, for example steam</value>
+  </data>
+  <data name="Blocklist_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Blocklist_Add_Tooltip" xml:space="preserve">
+    <value>Add to the list</value>
+  </data>
+  <data name="Blocklist_AddApp_Name" xml:space="preserve">
+    <value>Add app</value>
+  </data>
+  <data name="Blocklist_AddSite_Name" xml:space="preserve">
+    <value>Add site</value>
+  </data>
+  <data name="Blocklist_NoApps" xml:space="preserve">
+    <value>No apps on the list yet</value>
+  </data>
+  <data name="Blocklist_NoSites" xml:space="preserve">
+    <value>No sites on the list yet</value>
+  </data>
+  <data name="Blocklist_RunningNow" xml:space="preserve">
+    <value>RUNNING NOW</value>
+  </data>
+  <data name="Blocklist_Refresh" xml:space="preserve">
+    <value>Refresh list</value>
+  </data>
+  <data name="Blocklist_AddSelected" xml:space="preserve">
+    <value>Add selected</value>
+  </data>
+  <data name="Blocklist_Domain_Hint" xml:space="preserve">
+    <value>Domain, for example instagram.com</value>
+  </data>
+  <data name="Blocklist_Domain_Name" xml:space="preserve">
+    <value>Site domain</value>
+  </data>
+  <data name="Blocklist_SitesNote" xml:space="preserve">
+    <value>The domain is blocked, not the browser: you can keep working with the rest of the web.</value>
+  </data>
+  <data name="Blocklist_Remove_Tooltip" xml:space="preserve">
+    <value>Remove from the list</value>
+  </data>
+  <data name="Blocklist_Remove_Name" xml:space="preserve">
+    <value>Remove {0}</value>
+    <comment>{0} is the name of the app or site.</comment>
+  </data>
+  <data name="Blocklist_Error_DomainRequired" xml:space="preserve">
+    <value>Type a domain, for example instagram.com</value>
+  </data>
+  <data name="Blocklist_Error_NameRequired" xml:space="preserve">
+    <value>Type the program's name, for example steam</value>
+  </data>
+  <data name="Blocklist_Error_AlreadyListed" xml:space="preserve">
+    <value>{0} is already on the list.</value>
+    <comment>{0} is the app or domain.</comment>
+  </data>
+  <data name="Blocklist_Error_Protected" xml:space="preserve">
+    <value>{0} is part of Windows or of this app, so it cannot be blocked.</value>
+    <comment>{0} is the program name.</comment>
+  </data>
+  <data name="Stats_Title" xml:space="preserve">
+    <value>Statistics</value>
+  </data>
+  <data name="Stats_Period_Day" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="Stats_Period_Week" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="Stats_Period_Month" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="Stats_Period_Year" xml:space="preserve">
+    <value>Year</value>
+  </data>
+  <data name="Stats_Completed" xml:space="preserve">
+    <value>TIMES YOU FOCUSED</value>
+  </data>
+  <data name="Stats_Focused" xml:space="preserve">
+    <value>TIME FOCUSED</value>
+  </data>
+  <data name="Stats_Average" xml:space="preserve">
+    <value>AVERAGE PER SESSION</value>
+  </data>
+  <data name="Stats_Streak" xml:space="preserve">
+    <value>DAY STREAK</value>
+  </data>
+  <data name="Stats_Blocked" xml:space="preserve">
+    <value>DISTRACTIONS BLOCKED</value>
+  </data>
+  <data name="Stats_Chart_Last7Days" xml:space="preserve">
+    <value>Completed sessions over the last 7 days</value>
+  </data>
+  <data name="Stats_Chart_ByWeekday" xml:space="preserve">
+    <value>Completed sessions per day of the week</value>
+  </data>
+  <data name="Stats_Chart_ByMonthDay" xml:space="preserve">
+    <value>Completed sessions per day of the month</value>
+  </data>
+  <data name="Stats_Chart_ByMonth" xml:space="preserve">
+    <value>Completed sessions per month</value>
+  </data>
+  <data name="Stats_BarTooltip_One" xml:space="preserve">
+    <value>{1:MMM d}: {0} completed, {2}</value>
+    <comment>{0} completed sessions, {1} the day, {2} the time focused.</comment>
+  </data>
+  <data name="Stats_BarTooltip_Other" xml:space="preserve">
+    <value>{1:MMM d}: {0} completed, {2}</value>
+    <comment>{0} completed sessions, {1} the day, {2} the time focused.</comment>
+  </data>
+  <data name="Stats_MonthTooltip_One" xml:space="preserve">
+    <value>{1}: {0} completed</value>
+    <comment>{0} completed sessions, {1} the name of the month.</comment>
+  </data>
+  <data name="Stats_MonthTooltip_Other" xml:space="preserve">
+    <value>{1}: {0} completed</value>
+    <comment>{0} completed sessions, {1} the name of the month.</comment>
+  </data>
+  <data name="Stats_HeatmapTooltip" xml:space="preserve">
+    <value>{0:MMM d, yyyy}: {1}</value>
+    <comment>{0} the day, {1} the time focused.</comment>
+  </data>
+  <data name="Stats_DayFormat" xml:space="preserve">
+    <value>dddd, MMMM d</value>
+    <comment>A .NET custom date format, used when the period is a single day.</comment>
+  </data>
+  <data name="Stats_Range" xml:space="preserve">
+    <value>{0:MMM d, yyyy} — {1:MMM d, yyyy}</value>
+    <comment>{0} the first day of the period, {1} the last.</comment>
+  </data>
+  <data name="Stats_SessionWhen" xml:space="preserve">
+    <value>ddd MMM d, h:mm tt</value>
+    <comment>A .NET custom date format for when a session started.</comment>
+  </data>
+  <data name="Stats_Status_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Stats_Status_Aborted" xml:space="preserve">
+    <value>Abandoned</value>
+  </data>
+  <data name="Stats_Last12Months" xml:space="preserve">
+    <value>Last 12 months</value>
+  </data>
+  <data name="Stats_HeatmapHint" xml:space="preserve">
+    <value>Each square is a day. The brighter it is, the longer you focused.</value>
+  </data>
+  <data name="Stats_Less" xml:space="preserve">
+    <value>less</value>
+  </data>
+  <data name="Stats_More" xml:space="preserve">
+    <value>more</value>
+  </data>
+  <data name="Stats_Recent" xml:space="preserve">
+    <value>Recent sessions</value>
+  </data>
+  <data name="Stats_NoSessions" xml:space="preserve">
+    <value>No sessions in this period yet</value>
+  </data>
+  <data name="Stats_TopDistractions" xml:space="preserve">
+    <value>What tempted you most</value>
+  </data>
+  <data name="Stats_TopDistractionsNote" xml:space="preserve">
+    <value>Every time a blocked app opens during a session, it is recorded here.</value>
+  </data>
+  <data name="Stats_Hits_One" xml:space="preserve">
+    <value>{0} time</value>
+  </data>
+  <data name="Stats_Hits_Other" xml:space="preserve">
+    <value>{0} times</value>
+  </data>
+  <data name="Launcher_Tagline" xml:space="preserve">
+    <value>Block what distracts you while you focus, and look back later at how many times you pulled it off.</value>
+  </data>
+  <data name="Launcher_Open" xml:space="preserve">
+    <value>Open Stop Wasting Time</value>
+  </data>
+  <data name="Launcher_OpenElevated" xml:space="preserve">
+    <value>Open as administrator</value>
+  </data>
+  <data name="Launcher_OpenAnyway" xml:space="preserve">
+    <value>Open anyway, without site blocking</value>
+  </data>
+  <data name="Launcher_Status" xml:space="preserve">
+    <value>STARTUP STATUS</value>
+  </data>
+  <data name="Launcher_Admin" xml:space="preserve">
+    <value>Administrator rights</value>
+  </data>
+  <data name="Launcher_Admin_Yes" xml:space="preserve">
+    <value>Yes, it can block apps and sites</value>
+  </data>
+  <data name="Launcher_Admin_No" xml:space="preserve">
+    <value>No, site blocking will not work</value>
+  </data>
+  <data name="Launcher_Blocklist" xml:space="preserve">
+    <value>Blocklist</value>
+  </data>
+  <data name="Launcher_Rules" xml:space="preserve">
+    <value>{0} and {1} on the list</value>
+    <comment>{0} is a number of apps, such as '3 apps'; {1} a number of sites.</comment>
+  </data>
+  <data name="Launcher_Database" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="Launcher_Version" xml:space="preserve">
+    <value>Version {0}</value>
+    <comment>{0} is the version number.</comment>
+  </data>
+  <data name="Launcher_DataFolder" xml:space="preserve">
+    <value>Data folder</value>
+  </data>
+  <data name="Launcher_DataFolder_Tooltip" xml:space="preserve">
+    <value>Open the data folder</value>
+  </data>
+  <data name="Launcher_ElevationFailed" xml:space="preserve">
+    <value>Could not open as administrator: {0}</value>
+    <comment>{0} is the reason Windows gave.</comment>
+  </data>
+  <data name="Toast_Title" xml:space="preserve">
+    <value>Distraction blocked</value>
+  </data>
+  <data name="Toast_Closed" xml:space="preserve">
+    <value>{0} was closed because it is on your blocklist.</value>
+    <comment>{0} is the app that was closed.</comment>
+  </data>
+  <data name="Toast_ClosedWithTime" xml:space="preserve">
+    <value>{0} was closed. {1} of focus left.</value>
+    <comment>{0} is the app that was closed, {1} the countdown.</comment>
+  </data>
+</root>

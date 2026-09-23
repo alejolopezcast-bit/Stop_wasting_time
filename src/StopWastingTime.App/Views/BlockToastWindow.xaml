@@ -1,6 +1,7 @@
 <Window x:Class="StopWastingTime.App.Views.BlockToastWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:StopWastingTime.App.Localization"
         Title="Stop Wasting Time"
         Width="340"
         SizeToContent="Height"
@@ -32,7 +33,7 @@
 
             <StackPanel Grid.Column="1" Margin="12,0,0,0">
                 <TextBlock x:Name="TitleText"
-                           Text="Distracción bloqueada"
+                           Text="{loc:Tr Toast_Title}"
                            Style="{StaticResource ValueTextStyle}"
                            FontWeight="SemiBold" />
 

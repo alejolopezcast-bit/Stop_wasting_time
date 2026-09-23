@@ -289,7 +289,7 @@ public class HostsFileBlockerTests
 
         await blocker.ApplyAsync([Site("instagram.com")]);
 
-        Assert.NotNull(blocker.LastError);
+        Assert.Equal(HostsFileProblem.AccessDenied, blocker.LastProblem);
     }
 
     /// <summary>What the real file does when the app is not elevated.</summary>

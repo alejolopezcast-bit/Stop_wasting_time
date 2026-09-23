@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using StopWastingTime.App.Localization;
 using StopWastingTime.Core.Sessions;
 
 namespace StopWastingTime.App.ViewModels;
@@ -25,7 +26,8 @@ public partial class ShellViewModel : ObservableObject
         UltraFocusViewModel ultra,
         BlocklistViewModel blocklist,
         StatsViewModel stats,
-        FocusSessionService sessions)
+        FocusSessionService sessions,
+        Localizer localizer)
     {
         Focus = focus;
         Ultra = ultra;
@@ -36,10 +38,10 @@ public partial class ShellViewModel : ObservableObject
 
         NavItems =
         [
-            new NavItem("Enfoque", "IconFocus", focus) { IsSelected = true },
-            new NavItem("Enfoque ultra", "IconUltra", ultra),
-            new NavItem("Bloqueos", "IconBlock", blocklist),
-            new NavItem("Estadísticas", "IconStats", stats)
+            new NavItem("Nav_Focus", "IconFocus", focus, localizer) { IsSelected = true },
+            new NavItem("Nav_Ultra", "IconUltra", ultra, localizer),
+            new NavItem("Nav_Blocklist", "IconBlock", blocklist, localizer),
+            new NavItem("Nav_Stats", "IconStats", stats, localizer)
         ];
 
         _sessions.SessionStarted += (_, _) => RaiseSessionState();
@@ -54,8 +56,10 @@ public partial class ShellViewModel : ObservableObject
         _sessions.Progressed += (_, progress) =>
         {
             RemainingText = progress.RemainingText;
-            TrayTooltip = $"Quedan {progress.RemainingText} de concentración";
+            TrayTooltip = localizer.Format("Tray_Tooltip", progress.RemainingText);
         };
+
+        localizer.LanguageChanged += async (_, _) => await ApplyLanguageAsync();
     }
 
     public FocusViewModel Focus { get; }
@@ -114,6 +118,23 @@ public partial class ShellViewModel : ObservableObject
         await Stats.RefreshAsync();
     }
 
+    /// <summary>
+    /// Redraws what each screen had already written out in the old language. Text in the views follows
+    /// the picker by itself; this covers the sentences the view models put together.
+    /// </summary>
+    private async Task ApplyLanguageAsync()
+    {
+        foreach (var item in NavItems)
+        {
+            item.RefreshLabel();
+        }
+
+        await Focus.ApplyLanguageAsync();
+        await Ultra.ApplyLanguageAsync();
+        Blocklist.ApplyLanguage();
+        await Stats.ApplyLanguageAsync();
+    }
+
     private void RaiseSessionState()
     {
         OnPropertyChanged(nameof(IsSessionRunning));
@@ -131,15 +152,17 @@ public partial class ShellViewModel : ObservableObject
 }
 
 /// <summary>One entry of the navigation rail.</summary>
-public partial class NavItem(string label, string iconKey, ObservableObject page) : ObservableObject
+public partial class NavItem(string labelKey, string iconKey, ObservableObject page, Localizer localizer) : ObservableObject
 {
     [ObservableProperty]
     private bool _isSelected;
 
-    public string Label { get; } = label;
+    public string Label => localizer[labelKey];
 
     /// <summary>Name of the geometry in the icon dictionary, so the view model holds no WPF types.</summary>
     public string IconKey { get; } = iconKey;
 
     public ObservableObject Page { get; } = page;
+
+    public void RefreshLabel() => OnPropertyChanged(nameof(Label));
 }

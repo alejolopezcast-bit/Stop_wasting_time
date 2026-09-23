@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StopWastingTime.App.Infrastructure;
+using StopWastingTime.App.Localization;
 using StopWastingTime.App.ViewModels;
 using StopWastingTime.App.Views;
 using StopWastingTime.Core;
@@ -12,17 +13,19 @@ using StopWastingTime.Core.Blocking;
 using StopWastingTime.Core.Data;
 using StopWastingTime.Core.Models;
 using StopWastingTime.Core.Sessions;
+using StopWastingTime.Core.Settings;
 using StopWastingTime.Core.Stats;
 
 namespace StopWastingTime.App;
 
 /// <summary>
-/// Application entry point. It refuses to run twice, wires up services, prepares the database, cleans up
-/// after any previous crash, and only then opens the launcher window.
+/// Application entry point. It settles the language, refuses to run twice, wires up services, prepares
+/// the database, cleans up after any previous crash, and only then opens the launcher window.
 /// </summary>
 public partial class App : Application
 {
     private readonly SingleInstanceGuard _singleInstance = new();
+    private readonly SettingsStore _settings = new();
 
     private IHost? _host;
     private string? _remainingText;
@@ -31,10 +34,14 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // First of all, because it decides the words of everything that follows, including the one
+        // message that can appear before anything else is set up.
+        Localizer.Instance.Initialize(_settings.Load().Language);
+
         if (!_singleInstance.TryAcquire())
         {
             MessageBox.Show(
-                "Stop Wasting Time ya está abierto. Buscá su ventana o el ícono de la bandeja del sistema.",
+                Localizer.Instance["App_AlreadyRunning"],
                 "Stop Wasting Time",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
@@ -48,6 +55,7 @@ public partial class App : Application
 
         var logger = _host.Services.GetRequiredService<ILogger<App>>();
         AttachGlobalExceptionHandlers(logger);
+        RememberLanguageChoice(logger);
 
         try
         {
@@ -59,7 +67,10 @@ public partial class App : Application
                 report.AppRules,
                 report.SiteRules);
 
-            var launcher = new LauncherWindow(report, () => _host.Services.GetRequiredService<MainWindow>());
+            var launcher = new LauncherWindow(
+                report,
+                Localizer.Instance,
+                () => _host.Services.GetRequiredService<MainWindow>());
             MainWindow = launcher;
             launcher.Show();
         }
@@ -130,8 +141,28 @@ public partial class App : Application
         // that advances whichever session is running.
         services.GetRequiredService<SessionTicker>();
 
+        var localizer = services.GetRequiredService<Localizer>();
         services.GetRequiredService<BlockingCoordinator>().Blocked += (_, blocked) =>
-            Dispatcher.Invoke(() => BlockToastWindow.ShowFor(blocked.DisplayName, _remainingText));
+            Dispatcher.Invoke(() => BlockToastWindow.ShowFor(blocked.DisplayName, _remainingText, localizer));
+    }
+
+    /// <summary>
+    /// Writes the language down the moment it is picked, so the next start opens in it. Failing to save
+    /// only costs that, so it is logged and the switch goes ahead.
+    /// </summary>
+    private void RememberLanguageChoice(ILogger logger)
+    {
+        Localizer.Instance.LanguageChanged += (_, _) =>
+        {
+            try
+            {
+                _settings.Save(_settings.Load() with { Language = Localizer.Instance.Current.Code });
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                logger.LogWarning(exception, "Could not save the language choice.");
+            }
+        };
     }
 
     /// <summary>
@@ -164,6 +195,7 @@ public partial class App : Application
         builder.Logging.SetMinimumLevel(LogLevel.Information);
 
         builder.Services.AddSingleton(TimeProvider.System);
+        builder.Services.AddSingleton(Localizer.Instance);
 
         // Storage
         builder.Services.AddSingleton(_ => new SqliteConnectionFactory());
@@ -228,8 +260,11 @@ public partial class App : Application
 
     private static void ShowFatalError(Exception exception) =>
         MessageBox.Show(
-            $"Stop Wasting Time encontró un error:{Environment.NewLine}{Environment.NewLine}{exception.Message}" +
-            $"{Environment.NewLine}{Environment.NewLine}El detalle quedó en {AppPaths.LogFile}",
+            string.Join(
+                Environment.NewLine + Environment.NewLine,
+                Localizer.Instance["App_FatalError"],
+                exception.Message,
+                Localizer.Instance.Format("App_FatalError_Log", AppPaths.LogFile)),
             "Stop Wasting Time",
             MessageBoxButton.OK,
             MessageBoxImage.Error);

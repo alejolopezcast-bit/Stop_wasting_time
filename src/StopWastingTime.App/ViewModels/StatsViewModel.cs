@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using StopWastingTime.App.Localization;
 using StopWastingTime.Core.Data;
 using StopWastingTime.Core.Models;
 using StopWastingTime.Core.Stats;
@@ -13,8 +13,11 @@ namespace StopWastingTime.App.ViewModels;
 /// The chart geometry is worked out here rather than in XAML, so the views stay declarative and the
 /// numbers stay testable.
 /// </summary>
-public partial class StatsViewModel(StatsService stats, SessionRepository sessions, BlockHitRepository hits)
-    : ObservableObject
+public partial class StatsViewModel(
+    StatsService stats,
+    SessionRepository sessions,
+    BlockHitRepository hits,
+    Localizer localizer) : ObservableObject
 {
     /// <summary>Tallest a bar can get, in device independent pixels.</summary>
     private const double MaximumBarHeight = 150;
@@ -60,10 +63,10 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
     /// <summary>The period buttons, each knowing whether it is the one being shown.</summary>
     public IReadOnlyList<PeriodChip> Periods { get; } =
     [
-        new PeriodChip(StatsPeriod.Day, "Día"),
-        new PeriodChip(StatsPeriod.Week, "Semana"),
-        new PeriodChip(StatsPeriod.Month, "Mes"),
-        new PeriodChip(StatsPeriod.Year, "Año")
+        new PeriodChip(StatsPeriod.Day, "Stats_Period_Day", localizer),
+        new PeriodChip(StatsPeriod.Week, "Stats_Period_Week", localizer),
+        new PeriodChip(StatsPeriod.Month, "Stats_Period_Month", localizer),
+        new PeriodChip(StatsPeriod.Year, "Stats_Period_Year", localizer)
     ];
 
     [RelayCommand]
@@ -85,11 +88,11 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
         var totals = await stats.GetTotalsAsync(Period, today);
 
         RangeText = DescribeRange(totals.From, totals.To);
-        CompletedText = totals.CompletedSessions.ToString(CultureInfo.CurrentCulture);
-        FocusedText = FocusViewModel.FormatDuration(totals.FocusedTime);
-        AverageText = FocusViewModel.FormatDuration(totals.AverageSession);
-        StreakText = totals.CurrentStreak.ToString(CultureInfo.CurrentCulture);
-        BlockedText = totals.BlockHits.ToString(CultureInfo.CurrentCulture);
+        CompletedText = totals.CompletedSessions.ToString(localizer.Culture);
+        FocusedText = localizer.Duration(totals.FocusedTime);
+        AverageText = localizer.Duration(totals.AverageSession);
+        StreakText = totals.CurrentStreak.ToString(localizer.Culture);
+        BlockedText = totals.BlockHits.ToString(localizer.Culture);
         IsEmpty = totals.CompletedSessions == 0 && totals.AbortedSessions == 0;
 
         await BuildChartAsync(today);
@@ -98,13 +101,24 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
         await BuildTopDistractionsAsync(totals.From, totals.To);
     }
 
+    /// <summary>The period buttons, then every number and date on the screen, in the language just picked.</summary>
+    public async Task ApplyLanguageAsync()
+    {
+        foreach (var chip in Periods)
+        {
+            chip.RefreshLabel();
+        }
+
+        await RefreshAsync();
+    }
+
     private async Task BuildChartAsync(DateOnly today)
     {
         Bars.Clear();
 
         if (Period == StatsPeriod.Year)
         {
-            ChartTitle = "Sesiones completadas por mes";
+            ChartTitle = localizer["Stats_Chart_ByMonth"];
             await BuildMonthlyBarsAsync(today);
             return;
         }
@@ -115,9 +129,9 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
 
         ChartTitle = Period switch
         {
-            StatsPeriod.Day => "Sesiones completadas en los últimos 7 días",
-            StatsPeriod.Week => "Sesiones completadas por día de la semana",
-            _ => "Sesiones completadas por día del mes"
+            StatsPeriod.Day => localizer["Stats_Chart_Last7Days"],
+            StatsPeriod.Week => localizer["Stats_Chart_ByWeekday"],
+            _ => localizer["Stats_Chart_ByMonthDay"]
         };
 
         var summaries = await stats.GetDailySummariesAsync(from, to);
@@ -127,13 +141,13 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
         {
             Bars.Add(new ChartBar(
                 Label: Period == StatsPeriod.Month
-                    ? day.Date.Day.ToString(CultureInfo.CurrentCulture)
-                    : CultureInfo.CurrentCulture.DateTimeFormat.GetShortestDayName(day.Date.DayOfWeek),
+                    ? day.Date.Day.ToString(localizer.Culture)
+                    : localizer.Culture.DateTimeFormat.GetShortestDayName(day.Date.DayOfWeek),
                 Value: day.CompletedSessions,
                 Height: day.CompletedSessions / (double)peak * MaximumBarHeight,
                 IsToday: day.Date == today,
-                Tooltip: $"{day.Date:dd/MM}: {day.CompletedSessions} completadas, " +
-                         $"{FocusViewModel.FormatDuration(day.FocusedTime)}"));
+                Tooltip: localizer.Plural(
+                    "Stats_BarTooltip", day.CompletedSessions, day.Date, localizer.Duration(day.FocusedTime))));
         }
     }
 
@@ -152,11 +166,12 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
             byMonth.TryGetValue(month, out var completed);
 
             Bars.Add(new ChartBar(
-                Label: CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(month),
+                Label: localizer.Culture.DateTimeFormat.GetAbbreviatedMonthName(month),
                 Value: completed,
                 Height: completed / (double)peak * MaximumBarHeight,
                 IsToday: month == today.Month,
-                Tooltip: $"{CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)}: {completed} completadas"));
+                Tooltip: localizer.Plural(
+                    "Stats_MonthTooltip", completed, localizer.Culture.DateTimeFormat.GetMonthName(month))));
         }
     }
 
@@ -203,7 +218,8 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
                         < 120 => 0.8,
                         _ => 1.0
                     },
-                    Tooltip: $"{date:dd/MM/yyyy}: {FocusViewModel.FormatDuration(TimeSpan.FromMinutes(minutes))}"));
+                    Tooltip: localizer.Format(
+                        "Stats_HeatmapTooltip", date, localizer.Duration(TimeSpan.FromMinutes(minutes)))));
             }
         }
     }
@@ -220,9 +236,9 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
             }
 
             RecentSessions.Add(new SessionRow(
-                When: session.StartedUtc.ToLocalTime().ToString("ddd dd/MM HH:mm", CultureInfo.CurrentCulture),
-                Duration: FocusViewModel.FormatDuration(session.Elapsed),
-                Status: session.Status == SessionStatus.Completed ? "Completada" : "Abandonada",
+                When: session.StartedUtc.ToLocalTime().ToString(localizer["Stats_SessionWhen"], localizer.Culture),
+                Duration: localizer.Duration(session.Elapsed),
+                Status: localizer[session.Status == SessionStatus.Completed ? "Stats_Status_Completed" : "Stats_Status_Aborted"],
                 IsCompleted: session.Status == SessionStatus.Completed,
                 IsStrict: session.IsStrict));
         }
@@ -236,13 +252,13 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
         {
             TopDistractions.Add(new DistractionRow(
                 distraction.DisplayName,
-                $"{distraction.Hits} {(distraction.Hits == 1 ? "vez" : "veces")}"));
+                localizer.Plural("Stats_Hits", distraction.Hits)));
         }
     }
 
-    private static string DescribeRange(DateOnly from, DateOnly to) => from == to
-        ? from.ToString("dddd d 'de' MMMM", CultureInfo.CurrentCulture)
-        : $"{from:dd/MM/yyyy} — {to:dd/MM/yyyy}";
+    private string DescribeRange(DateOnly from, DateOnly to) => from == to
+        ? from.ToString(localizer["Stats_DayFormat"], localizer.Culture)
+        : localizer.Format("Stats_Range", from, to);
 
     partial void OnPeriodChanged(StatsPeriod value)
     {
@@ -254,14 +270,16 @@ public partial class StatsViewModel(StatsService stats, SessionRepository sessio
 }
 
 /// <summary>One of the day/week/month/year buttons.</summary>
-public partial class PeriodChip(StatsPeriod period, string label) : ObservableObject
+public partial class PeriodChip(StatsPeriod period, string labelKey, Localizer localizer) : ObservableObject
 {
     [ObservableProperty]
     private bool _isSelected = period == StatsPeriod.Week;
 
     public StatsPeriod Period { get; } = period;
 
-    public string Label { get; } = label;
+    public string Label => localizer[labelKey];
+
+    public void RefreshLabel() => OnPropertyChanged(nameof(Label));
 }
 
 /// <summary>One bar of the chart, already measured in pixels.</summary>

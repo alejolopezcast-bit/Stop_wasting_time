@@ -19,8 +19,11 @@ public sealed class HostsFileBlocker(IHostsFileAccess hosts, ILogger<HostsFileBl
         remove { }
     }
 
-    /// <summary>Why the last apply or release failed, for the UI to show. Null when all is well.</summary>
-    public string? LastError { get; private set; }
+    /// <summary>
+    /// Why the last apply or release failed, for the UI to put into words. Null when all is well. It is
+    /// a reason rather than a sentence so the core stays out of the business of choosing a language.
+    /// </summary>
+    public HostsFileProblem? LastProblem { get; private set; }
 
     public Task ApplyAsync(IReadOnlyList<BlockRule> rules, CancellationToken cancellationToken = default)
     {
@@ -73,17 +76,27 @@ public sealed class HostsFileBlocker(IHostsFileAccess hosts, ILogger<HostsFileBl
         try
         {
             action();
-            LastError = null;
+            LastProblem = null;
         }
         catch (UnauthorizedAccessException exception)
         {
-            LastError = "Sin permisos de administrador no se puede editar el archivo hosts.";
+            LastProblem = HostsFileProblem.AccessDenied;
             logger.LogWarning(exception, "No permission to edit the hosts file.");
         }
         catch (IOException exception)
         {
-            LastError = "No se pudo escribir el archivo hosts. Puede estar bloqueado por el antivirus.";
+            LastProblem = HostsFileProblem.WriteFailed;
             logger.LogWarning(exception, "Could not write the hosts file.");
         }
     }
+}
+
+/// <summary>The ways editing the hosts file goes wrong that are worth telling someone about.</summary>
+public enum HostsFileProblem
+{
+    /// <summary>The app is not running as administrator.</summary>
+    AccessDenied,
+
+    /// <summary>The file could not be written, usually because antivirus software is holding it.</summary>
+    WriteFailed
 }

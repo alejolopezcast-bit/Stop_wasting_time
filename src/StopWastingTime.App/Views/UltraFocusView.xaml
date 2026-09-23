@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:StopWastingTime.App.Controls"
              xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
+             xmlns:loc="clr-namespace:StopWastingTime.App.Localization"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewModels:UltraFocusViewModel}"
              d:DesignHeight="700"
@@ -24,13 +25,13 @@
         <!-- Header -->
         <StackPanel Grid.Column="0" Grid.ColumnSpan="3">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Enfoque ultra" Style="{StaticResource TitleTextStyle}" />
+                <TextBlock Text="{loc:Tr Ultra_Title}" Style="{StaticResource TitleTextStyle}" />
                 <Border Background="{StaticResource UltraSoftBrush}"
                         CornerRadius="9"
                         Padding="10,4"
                         Margin="12,0,0,0"
                         VerticalAlignment="Center">
-                    <TextBlock Text="SIN SALIDA"
+                    <TextBlock Text="{loc:Tr Ultra_Badge}"
                                Foreground="{StaticResource UltraBrush}"
                                FontSize="10.5"
                                FontWeight="SemiBold" />
@@ -38,7 +39,7 @@
             </StackPanel>
             <TextBlock Style="{StaticResource SubtitleTextStyle}"
                        Margin="0,4,0,0"
-                       Text="Elegís el tiempo y no hay vuelta atrás: no se puede cancelar, la app no se cierra, y se bloquea toda tu lista." />
+                       Text="{loc:Tr Ultra_Subtitle}" />
         </StackPanel>
 
         <!-- Timer -->
@@ -63,13 +64,13 @@
                                    Foreground="{StaticResource UltraBrush}"
                                    HorizontalAlignment="Center"
                                    Margin="0,2,0,0"
-                                   Text="SIN CANCELACIÓN POSIBLE"
+                                   Text="{loc:Tr Ultra_NoCancel}"
                                    Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" />
 
                         <TextBlock Style="{StaticResource OverlineTextStyle}"
                                    HorizontalAlignment="Center"
                                    Margin="0,2,0,0"
-                                   Text="LISTO PARA COMPROMETERSE"
+                                   Text="{loc:Tr Ultra_Ready}"
                                    Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}" />
 
                         <Border Margin="0,14,0,0"
@@ -87,7 +88,7 @@
                                            FontSize="12"
                                            Margin="7,0,0,0"
                                            VerticalAlignment="Center" />
-                                <TextBlock Text="bloqueadas"
+                                <TextBlock Text="{loc:Tr Timer_Blocked}"
                                            Style="{StaticResource LabelTextStyle}"
                                            Margin="4,0,0,0"
                                            VerticalAlignment="Center" />
@@ -128,15 +129,15 @@
                     <TextBox Text="{Binding SelectedMinutes, UpdateSourceTrigger=PropertyChanged}"
                              Width="78"
                              TextAlignment="Center"
-                             ToolTip="Minutos personalizados"
-                             AutomationProperties.Name="Minutos ultra" />
-                    <TextBlock Text="min" Style="{StaticResource LabelTextStyle}"
+                             ToolTip="{loc:Tr Timer_CustomMinutes}"
+                             AutomationProperties.Name="{loc:Tr Ultra_Minutes_Name}" />
+                    <TextBlock Text="{loc:Tr Unit_Minutes}" Style="{StaticResource LabelTextStyle}"
                                VerticalAlignment="Center" Margin="8,0,0,0" />
                 </StackPanel>
 
                 <!-- Action -->
                 <StackPanel HorizontalAlignment="Center" Margin="0,24,0,0">
-                    <Button Content="Iniciar enfoque ultra"
+                    <Button Content="{loc:Tr Ultra_Start}"
                             Style="{StaticResource UltraButtonStyle}"
                             Command="{Binding StartCommand}"
                             Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}" />
@@ -148,7 +149,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Path Data="{StaticResource IconLock}" Style="{StaticResource SmallIconStyle}"
                                   Stroke="{StaticResource UltraBrush}" />
-                            <TextBlock Text="Enfoque ultra en curso. Nos vemos cuando termine."
+                            <TextBlock Text="{loc:Tr Ultra_Running}"
                                        Foreground="{StaticResource UltraBrush}"
                                        FontSize="13.5"
                                        Margin="9,0,0,0"
@@ -158,7 +159,7 @@
                 </StackPanel>
 
                 <TextBlock
-                           Text="{Binding Warning}"
+                           Text="{Binding Warning.Text}"
                            Style="{StaticResource SubtitleTextStyle}"
                            Foreground="{StaticResource DangerBrush}"
                            HorizontalAlignment="Center"
@@ -173,7 +174,7 @@
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource IconUltra}" Style="{StaticResource SmallIconStyle}"
                               Stroke="{StaticResource UltraBrush}" />
-                        <TextBlock Text="ANTES DE EMPEZAR"
+                        <TextBlock Text="{loc:Tr Ultra_BeforeYouStart}"
                                    Style="{StaticResource OverlineTextStyle}"
                                    Foreground="{StaticResource UltraBrush}"
                                    Margin="8,0,0,0"
@@ -187,7 +188,7 @@
                                    Margin="10,0,0,0"
                                    TextWrapping="Wrap"
                                    Width="195"
-                                   Text="No hay botón de cancelar en ningún lado." />
+                                   Text="{loc:Tr Ultra_Term_NoCancel}" />
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
@@ -197,7 +198,7 @@
                                    Margin="10,0,0,0"
                                    TextWrapping="Wrap"
                                    Width="195"
-                                   Text="Cerrar la ventana no termina la sesión, y salir de la app queda deshabilitado." />
+                                   Text="{loc:Tr Ultra_Term_NoClose}" />
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
@@ -214,11 +215,11 @@
 
             <Border Style="{StaticResource CardStyle}" Margin="0,16,0,0">
                 <StackPanel>
-                    <TextBlock Text="CUÁNDO USARLO" Style="{StaticResource OverlineTextStyle}" />
+                    <TextBlock Text="{loc:Tr Ultra_WhenToUse}" Style="{StaticResource OverlineTextStyle}" />
                     <TextBlock Style="{StaticResource LabelTextStyle}"
                                Margin="0,12,0,0"
                                TextWrapping="Wrap"
-                               Text="Para lo que venís postergando hace días. Eleg&#237; un tiempo que puedas sostener: la única forma de salir antes es matar el proceso desde el Administrador de tareas." />
+                               Text="{loc:Tr Ultra_WhenToUse_Text}" />
                 </StackPanel>
             </Border>
         </StackPanel>
