@@ -19,6 +19,9 @@ public static class AppPaths
 
     public static string LogFile => Path.Combine(DataDirectory, "app.log");
 
+    /// <summary>Preferences that are not data, such as the interface language.</summary>
+    public static string SettingsFile => Path.Combine(DataDirectory, "settings.json");
+
     /// <summary>The Windows hosts file. Editing it requires administrator rights.</summary>
     public static string HostsFile => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.System),

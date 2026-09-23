@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Windows;
 using StopWastingTime.App.Infrastructure;
+using StopWastingTime.App.Localization;
+using StopWastingTime.App.ViewModels;
 using StopWastingTime.Core;
 
 namespace StopWastingTime.App.Views;
@@ -13,15 +15,19 @@ namespace StopWastingTime.App.Views;
 public partial class LauncherWindow : Window
 {
     private readonly StartupReport _report;
+    private readonly Localizer _localizer;
+    private readonly LauncherViewModel _viewModel;
     private readonly Func<MainWindow> _mainWindowFactory;
 
     private bool _handedOver;
 
-    public LauncherWindow(StartupReport report, Func<MainWindow> mainWindowFactory)
+    public LauncherWindow(StartupReport report, Localizer localizer, Func<MainWindow> mainWindowFactory)
     {
         _report = report;
+        _localizer = localizer;
         _mainWindowFactory = mainWindowFactory;
-        DataContext = report;
+        _viewModel = new LauncherViewModel(report, localizer);
+        DataContext = _viewModel;
 
         InitializeComponent();
     }
@@ -71,7 +77,7 @@ public partial class LauncherWindow : Window
         catch (Exception exception)
         {
             // The usual case is the user saying no to the UAC prompt, which is a decision, not a fault.
-            ShowError($"No se pudo abrir como administrador: {exception.Message}");
+            ShowError(_localizer.Format("Launcher_ElevationFailed", exception.Message));
         }
     }
 
@@ -96,6 +102,7 @@ public partial class LauncherWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        _viewModel.Dispose();
         base.OnClosed(e);
 
         // Closing the launcher without opening the app means the user is done.

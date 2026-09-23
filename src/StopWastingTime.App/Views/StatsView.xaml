@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
+             xmlns:loc="clr-namespace:StopWastingTime.App.Localization"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewModels:StatsViewModel}"
              d:DesignHeight="760"
@@ -30,7 +31,7 @@
             <!-- Header and period picker -->
             <Grid Grid.Row="0">
                 <StackPanel>
-                    <TextBlock Text="Estadísticas" Style="{StaticResource TitleTextStyle}" />
+                    <TextBlock Text="{loc:Tr Stats_Title}" Style="{StaticResource TitleTextStyle}" />
                     <TextBlock Text="{Binding RangeText}" Style="{StaticResource SubtitleTextStyle}" Margin="0,4,0,0" />
                 </StackPanel>
 
@@ -68,7 +69,7 @@
                         </Border>
                         <TextBlock Text="{Binding CompletedText}" Style="{StaticResource KpiValueTextStyle}"
                                    Margin="0,12,0,0" />
-                        <TextBlock Text="VECES QUE TE CONCENTRASTE" Style="{StaticResource OverlineTextStyle}"
+                        <TextBlock Text="{loc:Tr Stats_Completed}" Style="{StaticResource OverlineTextStyle}"
                                    Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
@@ -81,7 +82,7 @@
                         </Border>
                         <TextBlock Text="{Binding FocusedText}" Style="{StaticResource KpiValueTextStyle}"
                                    Margin="0,12,0,0" />
-                        <TextBlock Text="TIEMPO ENFOCADO" Style="{StaticResource OverlineTextStyle}"
+                        <TextBlock Text="{loc:Tr Stats_Focused}" Style="{StaticResource OverlineTextStyle}"
                                    Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
@@ -94,7 +95,7 @@
                         </Border>
                         <TextBlock Text="{Binding AverageText}" Style="{StaticResource KpiValueTextStyle}"
                                    Margin="0,12,0,0" />
-                        <TextBlock Text="PROMEDIO POR SESIÓN" Style="{StaticResource OverlineTextStyle}"
+                        <TextBlock Text="{loc:Tr Stats_Average}" Style="{StaticResource OverlineTextStyle}"
                                    Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
@@ -108,7 +109,7 @@
                         </Border>
                         <TextBlock Text="{Binding StreakText}" Style="{StaticResource KpiValueTextStyle}"
                                    Foreground="{StaticResource SuccessBrush}" Margin="0,12,0,0" />
-                        <TextBlock Text="RACHA DE DÍAS" Style="{StaticResource OverlineTextStyle}"
+                        <TextBlock Text="{loc:Tr Stats_Streak}" Style="{StaticResource OverlineTextStyle}"
                                    Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
@@ -122,7 +123,7 @@
                         </Border>
                         <TextBlock Text="{Binding BlockedText}" Style="{StaticResource KpiValueTextStyle}"
                                    Foreground="{StaticResource WarningBrush}" Margin="0,12,0,0" />
-                        <TextBlock Text="DISTRACCIONES BLOQUEADAS" Style="{StaticResource OverlineTextStyle}"
+                        <TextBlock Text="{loc:Tr Stats_Blocked}" Style="{StaticResource OverlineTextStyle}"
                                    Margin="0,3,0,0" />
                     </StackPanel>
                 </Border>
@@ -178,14 +179,14 @@
                 <StackPanel>
                     <Grid>
                         <StackPanel>
-                            <TextBlock Text="Últimos 12 meses" Style="{StaticResource SectionTextStyle}" />
-                            <TextBlock Text="Cada cuadradito es un día. Cuanto más marcado, más tiempo enfocado."
+                            <TextBlock Text="{loc:Tr Stats_Last12Months}" Style="{StaticResource SectionTextStyle}" />
+                            <TextBlock Text="{loc:Tr Stats_HeatmapHint}"
                                        Style="{StaticResource LabelTextStyle}" Margin="0,3,0,0" />
                         </StackPanel>
 
                         <!-- Legend -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                            <TextBlock Text="menos" Style="{StaticResource OverlineTextStyle}"
+                            <TextBlock Text="{loc:Tr Stats_Less}" Style="{StaticResource OverlineTextStyle}"
                                        VerticalAlignment="Center" Margin="0,0,7,0" />
                             <Border Width="11" Height="11" CornerRadius="3" Margin="2,0"
                                     Background="{StaticResource AccentBrush}" Opacity="0.07" />
@@ -197,7 +198,7 @@
                                     Background="{StaticResource AccentBrush}" Opacity="0.8" />
                             <Border Width="11" Height="11" CornerRadius="3" Margin="2,0"
                                     Background="{StaticResource AccentBrush}" />
-                            <TextBlock Text="más" Style="{StaticResource OverlineTextStyle}"
+                            <TextBlock Text="{loc:Tr Stats_More}" Style="{StaticResource OverlineTextStyle}"
                                        VerticalAlignment="Center" Margin="7,0,0,0" />
                         </StackPanel>
                     </Grid>
@@ -233,7 +234,7 @@
 
                 <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="24,20">
                     <StackPanel>
-                        <TextBlock Text="Sesiones recientes" Style="{StaticResource SectionTextStyle}" />
+                        <TextBlock Text="{loc:Tr Stats_Recent}" Style="{StaticResource SectionTextStyle}" />
 
                         <ItemsControl ItemsSource="{Binding RecentSessions}" Margin="0,14,0,0">
                             <ItemsControl.ItemTemplate>
@@ -279,7 +280,7 @@
                             <Path Data="{StaticResource IconCalendar}" Style="{StaticResource IconStyle}"
                                   Width="30" Height="30" Stroke="{StaticResource TextTertiaryBrush}"
                                   HorizontalAlignment="Center" Opacity="0.5" />
-                            <TextBlock Text="Todavía no hay sesiones en este período"
+                            <TextBlock Text="{loc:Tr Stats_NoSessions}"
                                        Style="{StaticResource LabelTextStyle}" Margin="0,10,0,0" />
                         </StackPanel>
                     </StackPanel>
@@ -287,7 +288,7 @@
 
                 <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="24,20">
                     <StackPanel>
-                        <TextBlock Text="Lo que más te tentó" Style="{StaticResource SectionTextStyle}" />
+                        <TextBlock Text="{loc:Tr Stats_TopDistractions}" Style="{StaticResource SectionTextStyle}" />
 
                         <ItemsControl ItemsSource="{Binding TopDistractions}" Margin="0,14,0,0">
                             <ItemsControl.ItemTemplate>
@@ -310,7 +311,7 @@
                         <TextBlock Style="{StaticResource LabelTextStyle}"
                                    TextWrapping="Wrap"
                                    Margin="0,4,0,0"
-                                   Text="Cada vez que una app bloqueada se abre durante una sesión, queda registrada acá." />
+                                   Text="{loc:Tr Stats_TopDistractionsNote}" />
                     </StackPanel>
                 </Border>
             </Grid>

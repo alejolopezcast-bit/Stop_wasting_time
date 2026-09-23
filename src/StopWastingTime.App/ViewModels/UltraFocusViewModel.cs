@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using StopWastingTime.App.Infrastructure;
+using StopWastingTime.App.Localization;
 using StopWastingTime.Core.Data;
 using StopWastingTime.Core.Models;
 using StopWastingTime.Core.Sessions;
@@ -22,6 +23,7 @@ public partial class UltraFocusViewModel : ObservableObject
     private readonly BlockRuleRepository _rules;
     private readonly IDialogService _dialogs;
     private readonly ILogger<UltraFocusViewModel> _logger;
+    private readonly Localizer _localizer;
 
     [ObservableProperty]
     private int _selectedMinutes = 60;
@@ -39,21 +41,31 @@ public partial class UltraFocusViewModel : ObservableObject
     private int _blockedDistractions;
 
     [ObservableProperty]
-    private string _blocklistSummary = "Se bloquea toda la lista.";
-
-    [ObservableProperty]
-    private string? _warning;
+    private string _blocklistSummary;
 
     public UltraFocusViewModel(
         FocusSessionService sessions,
         BlockRuleRepository rules,
         IDialogService dialogs,
+        Localizer localizer,
         ILogger<UltraFocusViewModel> logger)
     {
         _sessions = sessions;
         _rules = rules;
         _dialogs = dialogs;
+        _localizer = localizer;
         _logger = logger;
+
+        Warning = new LocalizedText(localizer);
+        _blocklistSummary = localizer["Ultra_Summary_Default"];
+
+        Presets =
+        [
+            new DurationPreset(30, localizer),
+            new DurationPreset(60, localizer),
+            new DurationPreset(90, localizer),
+            new DurationPreset(120, localizer)
+        ];
 
         _sessions.Progressed += (_, progress) =>
         {
@@ -87,8 +99,10 @@ public partial class UltraFocusViewModel : ObservableObject
     }
 
     /// <summary>Longer than the ordinary presets: ultra is for a morning, not for a pomodoro.</summary>
-    public IReadOnlyList<DurationPreset> Presets { get; } =
-        [new DurationPreset(30), new DurationPreset(60), new DurationPreset(90), new DurationPreset(120)];
+    public IReadOnlyList<DurationPreset> Presets { get; }
+
+    /// <summary>Something that needs attention, such as a duration out of range.</summary>
+    public LocalizedText Warning { get; }
 
     public bool CanEditSettings => !IsRunning;
 
@@ -115,16 +129,19 @@ public partial class UltraFocusViewModel : ObservableObject
 
         if (SelectedMinutes is < FocusSessionService.MinimumMinutes or > FocusSessionService.MaximumMinutes)
         {
-            Warning = $"Elegí entre {FocusSessionService.MinimumMinutes} y {FocusSessionService.MaximumMinutes} minutos.";
+            Warning.Set(text => text.Format(
+                "Validation_MinutesRange", FocusSessionService.MinimumMinutes, FocusSessionService.MaximumMinutes));
             return;
         }
 
         // The last chance to change your mind, because after this there is none.
         var confirmed = _dialogs.Confirm(
-            "Enfoque ultra",
-            $"Vas a bloquear todo durante {SelectedMinutes} minutos.{Environment.NewLine}{Environment.NewLine}" +
-            "No vas a poder cancelar la sesión ni cerrar la app hasta que termine, y se bloquea toda la " +
-            $"lista, incluso lo que tenés desactivado.{Environment.NewLine}{Environment.NewLine}¿Seguimos?");
+            _localizer["Ultra_Title"],
+            string.Join(
+                Environment.NewLine + Environment.NewLine,
+                _localizer.Plural("Ultra_Confirm_Duration", SelectedMinutes),
+                _localizer["Ultra_Confirm_Terms"],
+                _localizer["Ultra_Confirm_Question"]));
 
         if (!confirmed)
         {
@@ -132,7 +149,7 @@ public partial class UltraFocusViewModel : ObservableObject
             return;
         }
 
-        Warning = null;
+        Warning.Clear();
 
         await _sessions.StartAsync(SelectedMinutes, isStrict: true, SessionLabel, blockEverything: true);
 
@@ -145,18 +162,27 @@ public partial class UltraFocusViewModel : ObservableObject
     {
         var all = await _rules.GetAllAsync();
 
-        var apps = all.Count(rule => rule.Kind == BlockKind.Process);
-        var sites = all.Count(rule => rule.Kind == BlockKind.Website);
+        var apps = _localizer.Plural("Count_Apps", all.Count(rule => rule.Kind == BlockKind.Process));
+        var sites = _localizer.Plural("Count_Sites", all.Count(rule => rule.Kind == BlockKind.Website));
         var disabled = all.Count(rule => !rule.IsEnabled);
-
-        var summary = $"Se bloquean {apps} {(apps == 1 ? "app" : "apps")} y {sites} {(sites == 1 ? "sitio" : "sitios")}";
 
         BlocklistSummary = disabled switch
         {
-            0 => $"{summary}: toda tu lista.",
-            1 => $"{summary}: toda tu lista, incluido el que tenés desactivado.",
-            _ => $"{summary}: toda tu lista, incluidos los {disabled} que tenés desactivados."
+            0 => _localizer.Format("Ultra_Summary_All", apps, sites),
+            1 => _localizer.Format("Ultra_Summary_OneDisabled", apps, sites),
+            _ => _localizer.Format("Ultra_Summary_ManyDisabled", apps, sites, disabled)
         };
+    }
+
+    /// <summary>Everything this screen had written out goes again, in the language just picked.</summary>
+    public async Task ApplyLanguageAsync()
+    {
+        foreach (var preset in Presets)
+        {
+            preset.RefreshLabel();
+        }
+
+        await RefreshBlocklistSummaryAsync();
     }
 
     partial void OnIsRunningChanged(bool value) => OnPropertyChanged(nameof(CanEditSettings));

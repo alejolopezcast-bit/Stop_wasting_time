@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:StopWastingTime.App.Controls"
              xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
+             xmlns:loc="clr-namespace:StopWastingTime.App.Localization"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewModels:FocusViewModel}"
              d:DesignHeight="700"
@@ -23,10 +24,10 @@
 
         <!-- Header -->
         <StackPanel Grid.Column="0" Grid.ColumnSpan="3">
-            <TextBlock Text="Enfoque" Style="{StaticResource TitleTextStyle}" />
+            <TextBlock Text="{loc:Tr Focus_Title}" Style="{StaticResource TitleTextStyle}" />
             <TextBlock Style="{StaticResource SubtitleTextStyle}"
                        Margin="0,4,0,0"
-                       Text="Elegí cuánto necesitás concentrarte. Mientras dure, lo que esté en tu lista no se abre." />
+                       Text="{loc:Tr Focus_Subtitle}" />
         </StackPanel>
 
         <!-- Timer -->
@@ -50,13 +51,13 @@
                         <TextBlock Style="{StaticResource OverlineTextStyle}"
                                    HorizontalAlignment="Center"
                                    Margin="0,2,0,0"
-                                   Text="RESTANTES"
+                                   Text="{loc:Tr Timer_Remaining}"
                                    Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" />
 
                         <TextBlock Style="{StaticResource OverlineTextStyle}"
                                    HorizontalAlignment="Center"
                                    Margin="0,2,0,0"
-                                   Text="LISTO PARA EMPEZAR"
+                                   Text="{loc:Tr Focus_Ready}"
                                    Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}" />
 
                         <Border Margin="0,14,0,0"
@@ -74,7 +75,7 @@
                                            FontSize="12"
                                            Margin="7,0,0,0"
                                            VerticalAlignment="Center" />
-                                <TextBlock Text="bloqueadas"
+                                <TextBlock Text="{loc:Tr Timer_Blocked}"
                                            Style="{StaticResource LabelTextStyle}"
                                            Margin="4,0,0,0"
                                            VerticalAlignment="Center" />
@@ -115,9 +116,9 @@
                     <TextBox Text="{Binding SelectedMinutes, UpdateSourceTrigger=PropertyChanged}"
                              Width="78"
                              TextAlignment="Center"
-                             ToolTip="Minutos personalizados"
-                             AutomationProperties.Name="Minutos" />
-                    <TextBlock Text="min" Style="{StaticResource LabelTextStyle}"
+                             ToolTip="{loc:Tr Timer_CustomMinutes}"
+                             AutomationProperties.Name="{loc:Tr Focus_Minutes_Name}" />
+                    <TextBlock Text="{loc:Tr Unit_Minutes}" Style="{StaticResource LabelTextStyle}"
                                VerticalAlignment="Center" Margin="8,0,0,0" />
                 </StackPanel>
 
@@ -132,20 +133,20 @@
                         <Path Data="{StaticResource IconLock}" Style="{StaticResource IconStyle}"
                               Stroke="{StaticResource TextTertiaryBrush}" VerticalAlignment="Center" />
                         <StackPanel Margin="12,0,16,0" VerticalAlignment="Center">
-                            <TextBlock Text="Sesión estricta" Style="{StaticResource ValueTextStyle}" />
-                            <TextBlock Text="No se puede cancelar hasta terminar"
+                            <TextBlock Text="{loc:Tr Focus_Strict}" Style="{StaticResource ValueTextStyle}" />
+                            <TextBlock Text="{loc:Tr Focus_Strict_Hint}"
                                        Style="{StaticResource LabelTextStyle}" />
                         </StackPanel>
                         <CheckBox IsChecked="{Binding IsStrict}"
                                   Style="{StaticResource ToggleSwitchStyle}"
                                   VerticalAlignment="Center"
-                                  AutomationProperties.Name="Sesión estricta" />
+                                  AutomationProperties.Name="{loc:Tr Focus_Strict}" />
                     </StackPanel>
                 </Border>
 
                 <!-- Action -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,22,0,0">
-                    <Button Content="Iniciar concentración"
+                    <Button Content="{loc:Tr Focus_Start}"
                             Style="{StaticResource PrimaryButtonStyle}"
                             Command="{Binding StartCommand}"
                             Visibility="{Binding CanEditSettings, Converter={StaticResource BoolToVisibility}}" />
@@ -156,7 +157,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Path Data="{StaticResource IconBan}" Style="{StaticResource SmallIconStyle}"
                                   Stroke="{StaticResource DangerBrush}" />
-                            <TextBlock Text="Cancelar sesión" Margin="8,0,0,0" />
+                            <TextBlock Text="{loc:Tr Focus_Cancel}" Margin="8,0,0,0" />
                         </StackPanel>
                     </Button>
 
@@ -167,7 +168,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Path Data="{StaticResource IconLock}" Style="{StaticResource SmallIconStyle}"
                                   Stroke="{StaticResource WarningBrush}" />
-                            <TextBlock Text="Sesión estricta en curso"
+                            <TextBlock Text="{loc:Tr Focus_StrictRunning}"
                                        Foreground="{StaticResource WarningBrush}"
                                        FontSize="13"
                                        Margin="8,0,0,0"
@@ -178,12 +179,12 @@
 
                 <!-- Messages -->
                 <StackPanel Margin="0,14,0,0" HorizontalAlignment="Center">
-                    <TextBlock Text="{Binding LastResult}"
+                    <TextBlock Text="{Binding LastResult.Text}"
                                Style="{StaticResource LabelTextStyle}"
                                Foreground="{StaticResource SuccessBrush}"
                                HorizontalAlignment="Center" />
 
-                    <TextBlock Text="{Binding Warning}"
+                    <TextBlock Text="{Binding Warning.Text}"
                                Style="{StaticResource SubtitleTextStyle}"
                                Foreground="{StaticResource WarningBrush}"
                                MaxWidth="440"
@@ -197,7 +198,7 @@
         <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,22,0,0">
             <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
-                    <TextBlock Text="HOY" Style="{StaticResource OverlineTextStyle}" />
+                    <TextBlock Text="{loc:Tr Focus_Today}" Style="{StaticResource OverlineTextStyle}" />
 
                     <Grid Margin="0,16,0,0">
                         <Grid.ColumnDefinitions>
@@ -211,7 +212,7 @@
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding TodaySessionsText}" Style="{StaticResource ValueTextStyle}"
                                        FontSize="17" FontWeight="SemiBold" />
-                            <TextBlock Text="veces que te concentraste" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{loc:Tr Focus_Today_Sessions}" Style="{StaticResource LabelTextStyle}" />
                         </StackPanel>
                     </Grid>
 
@@ -227,7 +228,7 @@
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding TodayFocusedText}" Style="{StaticResource ValueTextStyle}"
                                        FontSize="17" FontWeight="SemiBold" />
-                            <TextBlock Text="tiempo enfocado" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{loc:Tr Focus_Today_Time}" Style="{StaticResource LabelTextStyle}" />
                         </StackPanel>
                     </Grid>
 
@@ -243,7 +244,7 @@
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding StreakText}" Style="{StaticResource ValueTextStyle}"
                                        FontSize="17" FontWeight="SemiBold" />
-                            <TextBlock Text="días seguidos" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{loc:Tr Focus_Today_Streak}" Style="{StaticResource LabelTextStyle}" />
                         </StackPanel>
                     </Grid>
                 </StackPanel>
@@ -251,7 +252,7 @@
 
             <Border Style="{StaticResource CardStyle}" Margin="0,16,0,0">
                 <StackPanel>
-                    <TextBlock Text="SE VA A BLOQUEAR" Style="{StaticResource OverlineTextStyle}" />
+                    <TextBlock Text="{loc:Tr Focus_WillBlock}" Style="{StaticResource OverlineTextStyle}" />
 
                     <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                         <Path Data="{StaticResource IconApp}" Style="{StaticResource SmallIconStyle}"
@@ -270,7 +271,7 @@
                     <TextBlock Style="{StaticResource LabelTextStyle}"
                                Margin="0,14,0,0"
                                TextWrapping="Wrap"
-                               Text="El navegador sigue funcionando: solo los sitios de la lista dejan de resolver." />
+                               Text="{loc:Tr Focus_BrowserNote}" />
                 </StackPanel>
             </Border>
         </StackPanel>

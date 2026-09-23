@@ -30,7 +30,10 @@ session is recorded — per day, per week, per month and per year.
   distractions, with a bar chart per period and a year heatmap.
 - **Tray icon.** Closing the window never closes the app: it goes to the tray and keeps working, because
   a blocker that stops blocking the moment the window is in the way is not a blocker. Leaving for real is
-  the Salir entry in the tray menu, and that is refused while an ultra or strict session runs.
+  the Exit entry in the tray menu, and that is refused while an ultra or strict session runs.
+- **Spanish and English.** The interface starts in the language Windows is displayed in and can be
+  switched at any moment, from the launcher or from the bottom of the navigation rail. Everything changes
+  on the spot, dates and numbers included, and the choice is remembered.
 - **Crash recovery.** If the app is killed mid session, the next launch closes that session as abandoned
   and removes the hosts block, so a crash can never leave sites blocked forever.
 
@@ -80,14 +83,15 @@ powershell -ExecutionPolicy Bypass -File scripts/create-shortcut.ps1
 ### Using it
 
 1. The launcher shows what it managed to set up and one button to open the app. When you are not running
-   as administrator, that button restarts the app elevated instead.
-2. On **Bloqueos**, pick the apps and sites to block. The app list offers the programs running right now,
-   so you do not have to know executable names, and you can also type one. Sites take anything you paste:
-   `https://www.instagram.com/explore` becomes `instagram.com`.
-3. On **Enfoque**, choose a duration, optionally tick *sesión estricta*, and start.
-4. **Enfoque ultra** is the same thing without an exit: it asks once, then blocks everything on the list
-   until the time is up. There is no cancel button, and the app will not quit.
-5. **Estadísticas** shows how it went, by day, week, month or year.
+   as administrator, that button restarts the app elevated instead. The `ES | EN` switch in its corner
+   picks the language.
+2. On **Blocklist** (*Bloqueos*), pick the apps and sites to block. The app list offers the programs
+   running right now, so you do not have to know executable names, and you can also type one. Sites take
+   anything you paste: `https://www.instagram.com/explore` becomes `instagram.com`.
+3. On **Focus** (*Enfoque*), choose a duration, optionally turn on *strict session*, and start.
+4. **Ultra focus** (*Enfoque ultra*) is the same thing without an exit: it asks once, then blocks
+   everything on the list until the time is up. There is no cancel button, and the app will not quit.
+5. **Statistics** (*Estadísticas*) shows how it went, by day, week, month or year.
 
 ## How it works
 
@@ -135,12 +139,15 @@ StopWastingTime.slnx
 │  ├─ Data/                                            SQLite schema and repositories
 │  ├─ Blocking/                                        Process watcher, hosts file editor, coordinator
 │  ├─ Sessions/                                        The session state machine
+│  ├─ Settings/                                        Saved preferences, which language to show
 │  └─ Stats/                                           Day/week/month/year aggregation
 ├─ src/StopWastingTime.App/           net10.0-windows  WPF user interface
 │  ├─ Views/                                           Launcher, shell, the four screens, toast
 │  ├─ ViewModels/                                      One per screen, MVVM
-│  ├─ Controls/                                        The countdown ring
+│  ├─ Controls/                                        Countdown ring, caption, language picker
 │  ├─ Infrastructure/                                  Elevation, logging, single instance
+│  ├─ Localization/                                    The Localizer and the {loc:Tr} markup extension
+│  ├─ Resources/                                       Strings.resx (English), Strings.es.resx (Spanish)
 │  └─ Themes/                                          Palette and control styles
 ├─ tests/StopWastingTime.Core.Tests/  net10.0          xUnit
 └─ scripts/                                            Run, publish, shortcut, icon generation
@@ -164,6 +171,7 @@ Everything the app stores lives in `%LOCALAPPDATA%\StopWastingTime`:
 | `stopwastingtime.db` | SQLite database: sessions, blocklist, blocked attempts. Upgraded in place when the schema changes, so history is never lost |
 | `hosts.backup` | The hosts file as it was before the app ever changed it |
 | `app.log` | Startup and session log. A windowed app has no console, so this is where a failed launch explains itself |
+| `settings.json` | Preferences: for now, the interface language. Delete it to go back to following Windows |
 
 Set `SWT_DATA_DIR` to put that folder somewhere else — useful for trying the app against a throwaway
 profile, or for keeping it on a portable drive:
@@ -190,6 +198,23 @@ The icon is generated rather than committed as an opaque binary, so its shape an
 powershell -ExecutionPolicy Bypass -File scripts/generate-icon.ps1
 ```
 
+### Translations
+
+Every word the interface shows lives in `src/StopWastingTime.App/Resources`: `Strings.resx` is English,
+and also what any missing translation falls back to; `Strings.es.resx` is Spanish. Views ask for text
+with `{loc:Tr Key}`, which follows the language picker without rebuilding the view, and view models go
+through the `Localizer` for sentences with numbers in them. Sentences that change with a count come in
+pairs, `Key_One` and `Key_Other`.
+
+To add a language:
+
+1. Copy `Strings.resx` to `Strings.xx.resx` and translate the values. The comments in the English file
+   say what each `{0}` stands for.
+2. Add the code to `AppLanguages.Supported` in `src/StopWastingTime.Core/Settings/AppLanguages.cs`, and
+   an entry named in its own language to `Localizer.Languages`.
+3. Run the tests. They check that every language has every key, that no translation drops or invents a
+   placeholder, and that every key the app asks for exists.
+
 ## Known limitations
 
 - **DNS over HTTPS bypasses the hosts file.** Chrome's *Secure DNS* and Firefox's DoH resolve names
@@ -204,6 +229,9 @@ powershell -ExecutionPolicy Bypass -File scripts/generate-icon.ps1
 - **An ultra session really cannot be stopped from inside the app.** Ending one early means killing the
   process from Task Manager, and the next launch will unblock everything and record the session as
   abandoned. Pick a duration you can live with.
+- **Dialog buttons follow Windows.** The confirmation before an ultra session is a standard Windows
+  message box, so its OK and Cancel buttons come in the language Windows is displayed in, whatever the
+  app is set to.
 - **Windows only.** The blocking is built on the Windows process list and the Windows hosts file.
 
 ## Roadmap

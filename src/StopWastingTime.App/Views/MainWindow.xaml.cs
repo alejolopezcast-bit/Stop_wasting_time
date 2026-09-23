@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using H.NotifyIcon;
 using StopWastingTime.App.Infrastructure;
+using StopWastingTime.App.Localization;
 using StopWastingTime.App.ViewModels;
 
 namespace StopWastingTime.App.Views;
@@ -12,21 +13,23 @@ namespace StopWastingTime.App.Views;
 /// <summary>
 /// The app proper: the screens, the tray icon, and the rules about closing. Closing the window only
 /// sends the app to the tray, because a blocker that stops blocking the moment the window is in the way
-/// is not a blocker. Leaving for real is the Salir entry in the tray menu, and a strict or ultra session
+/// is not a blocker. Leaving for real is the Exit entry in the tray menu, and a strict or ultra session
 /// refuses even that until the time is up.
 /// </summary>
 public partial class MainWindow : Window
 {
     private readonly ShellViewModel _shell;
+    private readonly Localizer _localizer;
     private readonly ILogger<MainWindow> _logger;
 
     private TaskbarIcon? _trayIcon;
     private bool _isExiting;
     private bool _explainedTheTray;
 
-    public MainWindow(ShellViewModel shell, ILogger<MainWindow> logger)
+    public MainWindow(ShellViewModel shell, Localizer localizer, ILogger<MainWindow> logger)
     {
         _shell = shell;
+        _localizer = localizer;
         _logger = logger;
         DataContext = shell;
 
@@ -50,11 +53,14 @@ public partial class MainWindow : Window
     {
         var menu = new ContextMenu();
 
-        var show = new MenuItem { Header = "Mostrar" };
+        // Bound rather than assigned, so the menu follows the language picker like the rest of the app.
+        var show = new MenuItem();
+        show.SetBinding(HeaderedItemsControl.HeaderProperty, Localizer.Bind("Tray_Show"));
         show.Click += (_, _) => RestoreWindow();
         menu.Items.Add(show);
 
-        var exit = new MenuItem { Header = "Salir" };
+        var exit = new MenuItem();
+        exit.SetBinding(HeaderedItemsControl.HeaderProperty, Localizer.Bind("Common_Exit"));
         exit.Click += (_, _) => TryExit();
         menu.Items.Add(exit);
 
@@ -105,7 +111,7 @@ public partial class MainWindow : Window
             RestoreWindow();
             MessageBox.Show(
                 this,
-                "Hay una sesión sin cancelación en curso. La app no se puede cerrar hasta que termine.",
+                _localizer["Tray_StrictNoExit"],
                 "Stop Wasting Time",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
@@ -131,14 +137,14 @@ public partial class MainWindow : Window
 
         if (_shell.IsSessionRunning)
         {
-            Notify("La sesión sigue corriendo. La app queda en la bandeja del sistema.");
+            Notify(_localizer["Tray_StillRunning"]);
             return;
         }
 
         if (!_explainedTheTray)
         {
             // Said once: after that, someone who closes the window knows where it went.
-            Notify("La app queda en la bandeja. Para cerrarla del todo, usá Salir en el menú del ícono.");
+            Notify(_localizer["Tray_Explain"]);
         }
     }
 

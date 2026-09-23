@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Spanish. Same keys as Strings.resx, where the comments explain the placeholders. -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_AlreadyRunning" xml:space="preserve">
+    <value>Stop Wasting Time ya está abierto. Buscá su ventana o el ícono de la bandeja del sistema.</value>
+  </data>
+  <data name="App_FatalError" xml:space="preserve">
+    <value>Stop Wasting Time encontró un error:</value>
+  </data>
+  <data name="App_FatalError_Log" xml:space="preserve">
+    <value>El detalle quedó en {0}</value>
+  </data>
+  <data name="Common_Exit" xml:space="preserve">
+    <value>Salir</value>
+  </data>
+  <data name="Language_Title" xml:space="preserve">
+    <value>IDIOMA</value>
+  </data>
+  <data name="Nav_Focus" xml:space="preserve">
+    <value>Enfoque</value>
+  </data>
+  <data name="Nav_Ultra" xml:space="preserve">
+    <value>Enfoque ultra</value>
+  </data>
+  <data name="Nav_Blocklist" xml:space="preserve">
+    <value>Bloqueos</value>
+  </data>
+  <data name="Nav_Stats" xml:space="preserve">
+    <value>Estadísticas</value>
+  </data>
+  <data name="Shell_Tagline" xml:space="preserve">
+    <value>Concentración</value>
+  </data>
+  <data name="Shell_OfFocus" xml:space="preserve">
+    <value>de concentración</value>
+  </data>
+  <data name="Shell_SessionRunning" xml:space="preserve">
+    <value>SESIÓN EN CURSO</value>
+  </data>
+  <data name="Shell_Remaining" xml:space="preserve">
+    <value>restantes</value>
+  </data>
+  <data name="Caption_Minimize" xml:space="preserve">
+    <value>Minimizar</value>
+  </data>
+  <data name="Caption_Maximize" xml:space="preserve">
+    <value>Maximizar</value>
+  </data>
+  <data name="Caption_Restore" xml:space="preserve">
+    <value>Restaurar</value>
+  </data>
+  <data name="Caption_Close" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="Tray_Show" xml:space="preserve">
+    <value>Mostrar</value>
+  </data>
+  <data name="Tray_Tooltip" xml:space="preserve">
+    <value>Quedan {0} de concentración</value>
+  </data>
+  <data name="Tray_StrictNoExit" xml:space="preserve">
+    <value>Hay una sesión sin cancelación en curso. La app no se puede cerrar hasta que termine.</value>
+  </data>
+  <data name="Tray_StillRunning" xml:space="preserve">
+    <value>La sesión sigue corriendo. La app queda en la bandeja del sistema.</value>
+  </data>
+  <data name="Tray_Explain" xml:space="preserve">
+    <value>La app queda en la bandeja. Para cerrarla del todo, usá Salir en el menú del ícono.</value>
+  </data>
+  <data name="Unit_Minutes" xml:space="preserve">
+    <value>min</value>
+  </data>
+  <data name="Duration_Minutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="Duration_HoursMinutes" xml:space="preserve">
+    <value>{0} h {1} min</value>
+  </data>
+  <data name="Count_Apps_One" xml:space="preserve">
+    <value>{0} app</value>
+  </data>
+  <data name="Count_Apps_Other" xml:space="preserve">
+    <value>{0} apps</value>
+  </data>
+  <data name="Count_Sites_One" xml:space="preserve">
+    <value>{0} sitio</value>
+  </data>
+  <data name="Count_Sites_Other" xml:space="preserve">
+    <value>{0} sitios</value>
+  </data>
+  <data name="Validation_MinutesRange" xml:space="preserve">
+    <value>Elegí entre {0} y {1} minutos.</value>
+  </data>
+  <data name="Timer_Remaining" xml:space="preserve">
+    <value>RESTANTES</value>
+  </data>
+  <data name="Timer_Blocked" xml:space="preserve">
+    <value>bloqueadas</value>
+  </data>
+  <data name="Timer_CustomMinutes" xml:space="preserve">
+    <value>Minutos personalizados</value>
+  </data>
+  <data name="Focus_Title" xml:space="preserve">
+    <value>Enfoque</value>
+  </data>
+  <data name="Focus_Subtitle" xml:space="preserve">
+    <value>Elegí cuánto necesitás concentrarte. Mientras dure, lo que esté en tu lista no se abre.</value>
+  </data>
+  <data name="Focus_Ready" xml:space="preserve">
+    <value>LISTO PARA EMPEZAR</value>
+  </data>
+  <data name="Focus_Minutes_Name" xml:space="preserve">
+    <value>Minutos</value>
+  </data>
+  <data name="Focus_Strict" xml:space="preserve">
+    <value>Sesión estricta</value>
+  </data>
+  <data name="Focus_Strict_Hint" xml:space="preserve">
+    <value>No se puede cancelar hasta terminar</value>
+  </data>
+  <data name="Focus_Start" xml:space="preserve">
+    <value>Iniciar concentración</value>
+  </data>
+  <data name="Focus_Cancel" xml:space="preserve">
+    <value>Cancelar sesión</value>
+  </data>
+  <data name="Focus_StrictRunning" xml:space="preserve">
+    <value>Sesión estricta en curso</value>
+  </data>
+  <data name="Focus_Today" xml:space="preserve">
+    <value>HOY</value>
+  </data>
+  <data name="Focus_Today_Sessions" xml:space="preserve">
+    <value>veces que te concentraste</value>
+  </data>
+  <data name="Focus_Today_Time" xml:space="preserve">
+    <value>tiempo enfocado</value>
+  </data>
+  <data name="Focus_Today_Streak" xml:space="preserve">
+    <value>días seguidos</value>
+  </data>
+  <data name="Focus_WillBlock" xml:space="preserve">
+    <value>SE VA A BLOQUEAR</value>
+  </data>
+  <data name="Focus_BrowserNote" xml:space="preserve">
+    <value>El navegador sigue funcionando: solo los sitios de la lista dejan de resolver.</value>
+  </data>
+  <data name="Focus_Completed_One" xml:space="preserve">
+    <value>Sesión completada: {0} minuto de concentración.</value>
+  </data>
+  <data name="Focus_Completed_Other" xml:space="preserve">
+    <value>Sesión completada: {0} minutos de concentración.</value>
+  </data>
+  <data name="Focus_Aborted_One" xml:space="preserve">
+    <value>Sesión abandonada a {0} minuto de empezar.</value>
+  </data>
+  <data name="Focus_Aborted_Other" xml:space="preserve">
+    <value>Sesión abandonada a los {0} minutos.</value>
+  </data>
+  <data name="Hosts_AccessDenied" xml:space="preserve">
+    <value>Sin permisos de administrador no se puede editar el archivo hosts.</value>
+  </data>
+  <data name="Hosts_WriteFailed" xml:space="preserve">
+    <value>No se pudo escribir el archivo hosts. Puede estar bloqueado por el antivirus.</value>
+  </data>
+  <data name="Ultra_Title" xml:space="preserve">
+    <value>Enfoque ultra</value>
+  </data>
+  <data name="Ultra_Badge" xml:space="preserve">
+    <value>SIN SALIDA</value>
+  </data>
+  <data name="Ultra_Subtitle" xml:space="preserve">
+    <value>Elegís el tiempo y no hay vuelta atrás: no se puede cancelar, la app no se cierra, y se bloquea toda tu lista.</value>
+  </data>
+  <data name="Ultra_NoCancel" xml:space="preserve">
+    <value>SIN CANCELACIÓN POSIBLE</value>
+  </data>
+  <data name="Ultra_Ready" xml:space="preserve">
+    <value>LISTO PARA COMPROMETERSE</value>
+  </data>
+  <data name="Ultra_Minutes_Name" xml:space="preserve">
+    <value>Minutos ultra</value>
+  </data>
+  <data name="Ultra_Start" xml:space="preserve">
+    <value>Iniciar enfoque ultra</value>
+  </data>
+  <data name="Ultra_Running" xml:space="preserve">
+    <value>Enfoque ultra en curso. Nos vemos cuando termine.</value>
+  </data>
+  <data name="Ultra_BeforeYouStart" xml:space="preserve">
+    <value>ANTES DE EMPEZAR</value>
+  </data>
+  <data name="Ultra_Term_NoCancel" xml:space="preserve">
+    <value>No hay botón de cancelar en ningún lado.</value>
+  </data>
+  <data name="Ultra_Term_NoClose" xml:space="preserve">
+    <value>Cerrar la ventana no termina la sesión, y salir de la app queda deshabilitado.</value>
+  </data>
+  <data name="Ultra_WhenToUse" xml:space="preserve">
+    <value>CUÁNDO USARLO</value>
+  </data>
+  <data name="Ultra_WhenToUse_Text" xml:space="preserve">
+    <value>Para lo que venís postergando hace días. Elegí un tiempo que puedas sostener: la única forma de salir antes es matar el proceso desde el Administrador de tareas.</value>
+  </data>
+  <data name="Ultra_Summary_Default" xml:space="preserve">
+    <value>Se bloquea toda la lista.</value>
+  </data>
+  <data name="Ultra_Summary_All" xml:space="preserve">
+    <value>Se bloquean {0} y {1}: toda tu lista.</value>
+  </data>
+  <data name="Ultra_Summary_OneDisabled" xml:space="preserve">
+    <value>Se bloquean {0} y {1}: toda tu lista, incluido el que tenés desactivado.</value>
+  </data>
+  <data name="Ultra_Summary_ManyDisabled" xml:space="preserve">
+    <value>Se bloquean {0} y {1}: toda tu lista, incluidos los {2} que tenés desactivados.</value>
+  </data>
+  <data name="Ultra_Confirm_Duration_One" xml:space="preserve">
+    <value>Vas a bloquear todo durante {0} minuto.</value>
+  </data>
+  <data name="Ultra_Confirm_Duration_Other" xml:space="preserve">
+    <value>Vas a bloquear todo durante {0} minutos.</value>
+  </data>
+  <data name="Ultra_Confirm_Terms" xml:space="preserve">
+    <value>No vas a poder cancelar la sesión ni cerrar la app hasta que termine, y se bloquea toda la lista, incluso lo que tenés desactivado.</value>
+  </data>
+  <data name="Ultra_Confirm_Question" xml:space="preserve">
+    <value>¿Seguimos?</value>
+  </data>
+  <data name="Blocklist_Title" xml:space="preserve">
+    <value>Bloqueos</value>
+  </data>
+  <data name="Blocklist_Subtitle" xml:space="preserve">
+    <value>Lo que esté activado se bloquea mientras dure una sesión. Fuera de la sesión no se toca nada.</value>
+  </data>
+  <data name="Blocklist_Apps" xml:space="preserve">
+    <value>Apps</value>
+  </data>
+  <data name="Blocklist_Sites" xml:space="preserve">
+    <value>Sitios</value>
+  </data>
+  <data name="Blocklist_AppsCount_One" xml:space="preserve">
+    <value>{1} de {0} app activa</value>
+  </data>
+  <data name="Blocklist_AppsCount_Other" xml:space="preserve">
+    <value>{1} de {0} apps activas</value>
+  </data>
+  <data name="Blocklist_SitesCount_One" xml:space="preserve">
+    <value>{1} de {0} sitio activo</value>
+  </data>
+  <data name="Blocklist_SitesCount_Other" xml:space="preserve">
+    <value>{1} de {0} sitios activos</value>
+  </data>
+  <data name="Blocklist_AppName_Tooltip" xml:space="preserve">
+    <value>Nombre del ejecutable, por ejemplo steam</value>
+  </data>
+  <data name="Blocklist_AppName_Name" xml:space="preserve">
+    <value>Nombre de la app</value>
+  </data>
+  <data name="Blocklist_AppName_Placeholder" xml:space="preserve">
+    <value>Nombre del programa, por ejemplo steam</value>
+  </data>
+  <data name="Blocklist_Add" xml:space="preserve">
+    <value>Agregar</value>
+  </data>
+  <data name="Blocklist_Add_Tooltip" xml:space="preserve">
+    <value>Agregar a la lista</value>
+  </data>
+  <data name="Blocklist_AddApp_Name" xml:space="preserve">
+    <value>Agregar app</value>
+  </data>
+  <data name="Blocklist_AddSite_Name" xml:space="preserve">
+    <value>Agregar sitio</value>
+  </data>
+  <data name="Blocklist_NoApps" xml:space="preserve">
+    <value>Todavía no hay apps en la lista</value>
+  </data>
+  <data name="Blocklist_NoSites" xml:space="preserve">
+    <value>Todavía no hay sitios en la lista</value>
+  </data>
+  <data name="Blocklist_RunningNow" xml:space="preserve">
+    <value>ABIERTOS AHORA</value>
+  </data>
+  <data name="Blocklist_Refresh" xml:space="preserve">
+    <value>Actualizar lista</value>
+  </data>
+  <data name="Blocklist_AddSelected" xml:space="preserve">
+    <value>Agregar seleccionado</value>
+  </data>
+  <data name="Blocklist_Domain_Hint" xml:space="preserve">
+    <value>Dominio, por ejemplo instagram.com</value>
+  </data>
+  <data name="Blocklist_Domain_Name" xml:space="preserve">
+    <value>Dominio del sitio</value>
+  </data>
+  <data name="Blocklist_SitesNote" xml:space="preserve">
+    <value>Se bloquea el dominio, no el navegador: podés seguir trabajando con el resto de la web.</value>
+  </data>
+  <data name="Blocklist_Remove_Tooltip" xml:space="preserve">
+    <value>Quitar de la lista</value>
+  </data>
+  <data name="Blocklist_Remove_Name" xml:space="preserve">
+    <value>Quitar {0}</value>
+  </data>
+  <data name="Blocklist_Error_DomainRequired" xml:space="preserve">
+    <value>Escribí un dominio, por ejemplo instagram.com</value>
+  </data>
+  <data name="Blocklist_Error_NameRequired" xml:space="preserve">
+    <value>Escribí el nombre del programa, por ejemplo steam</value>
+  </data>
+  <data name="Blocklist_Error_AlreadyListed" xml:space="preserve">
+    <value>{0} ya está en la lista.</value>
+  </data>
+  <data name="Blocklist_Error_Protected" xml:space="preserve">
+    <value>{0} es parte de Windows o de esta app, así que no se puede bloquear.</value>
+  </data>
+  <data name="Stats_Title" xml:space="preserve">
+    <value>Estadísticas</value>
+  </data>
+  <data name="Stats_Period_Day" xml:space="preserve">
+    <value>Día</value>
+  </data>
+  <data name="Stats_Period_Week" xml:space="preserve">
+    <value>Semana</value>
+  </data>
+  <data name="Stats_Period_Month" xml:space="preserve">
+    <value>Mes</value>
+  </data>
+  <data name="Stats_Period_Year" xml:space="preserve">
+    <value>Año</value>
+  </data>
+  <data name="Stats_Completed" xml:space="preserve">
+    <value>VECES QUE TE CONCENTRASTE</value>
+  </data>
+  <data name="Stats_Focused" xml:space="preserve">
+    <value>TIEMPO ENFOCADO</value>
+  </data>
+  <data name="Stats_Average" xml:space="preserve">
+    <value>PROMEDIO POR SESIÓN</value>
+  </data>
+  <data name="Stats_Streak" xml:space="preserve">
+    <value>RACHA DE DÍAS</value>
+  </data>
+  <data name="Stats_Blocked" xml:space="preserve">
+    <value>DISTRACCIONES BLOQUEADAS</value>
+  </data>
+  <data name="Stats_Chart_Last7Days" xml:space="preserve">
+    <value>Sesiones completadas en los últimos 7 días</value>
+  </data>
+  <data name="Stats_Chart_ByWeekday" xml:space="preserve">
+    <value>Sesiones completadas por día de la semana</value>
+  </data>
+  <data name="Stats_Chart_ByMonthDay" xml:space="preserve">
+    <value>Sesiones completadas por día del mes</value>
+  </data>
+  <data name="Stats_Chart_ByMonth" xml:space="preserve">
+    <value>Sesiones completadas por mes</value>
+  </data>
+  <data name="Stats_BarTooltip_One" xml:space="preserve">
+    <value>{1:dd/MM}: {0} completada, {2}</value>
+  </data>
+  <data name="Stats_BarTooltip_Other" xml:space="preserve">
+    <value>{1:dd/MM}: {0} completadas, {2}</value>
+  </data>
+  <data name="Stats_MonthTooltip_One" xml:space="preserve">
+    <value>{1}: {0} completada</value>
+  </data>
+  <data name="Stats_MonthTooltip_Other" xml:space="preserve">
+    <value>{1}: {0} completadas</value>
+  </data>
+  <data name="Stats_HeatmapTooltip" xml:space="preserve">
+    <value>{0:dd/MM/yyyy}: {1}</value>
+  </data>
+  <data name="Stats_DayFormat" xml:space="preserve">
+    <value>dddd d 'de' MMMM</value>
+  </data>
+  <data name="Stats_Range" xml:space="preserve">
+    <value>{0:dd/MM/yyyy} — {1:dd/MM/yyyy}</value>
+  </data>
+  <data name="Stats_SessionWhen" xml:space="preserve">
+    <value>ddd dd/MM HH:mm</value>
+  </data>
+  <data name="Stats_Status_Completed" xml:space="preserve">
+    <value>Completada</value>
+  </data>
+  <data name="Stats_Status_Aborted" xml:space="preserve">
+    <value>Abandonada</value>
+  </data>
+  <data name="Stats_Last12Months" xml:space="preserve">
+    <value>Últimos 12 meses</value>
+  </data>
+  <data name="Stats_HeatmapHint" xml:space="preserve">
+    <value>Cada cuadradito es un día. Cuanto más marcado, más tiempo enfocado.</value>
+  </data>
+  <data name="Stats_Less" xml:space="preserve">
+    <value>menos</value>
+  </data>
+  <data name="Stats_More" xml:space="preserve">
+    <value>más</value>
+  </data>
+  <data name="Stats_Recent" xml:space="preserve">
+    <value>Sesiones recientes</value>
+  </data>
+  <data name="Stats_NoSessions" xml:space="preserve">
+    <value>Todavía no hay sesiones en este período</value>
+  </data>
+  <data name="Stats_TopDistractions" xml:space="preserve">
+    <value>Lo que más te tentó</value>
+  </data>
+  <data name="Stats_TopDistractionsNote" xml:space="preserve">
+    <value>Cada vez que una app bloqueada se abre durante una sesión, queda registrada acá.</value>
+  </data>
+  <data name="Stats_Hits_One" xml:space="preserve">
+    <value>{0} vez</value>
+  </data>
+  <data name="Stats_Hits_Other" xml:space="preserve">
+    <value>{0} veces</value>
+  </data>
+  <data name="Launcher_Tagline" xml:space="preserve">
+    <value>Bloqueá lo que te distrae mientras te concentrás, y mirá después cuántas veces lo lograste.</value>
+  </data>
+  <data name="Launcher_Open" xml:space="preserve">
+    <value>Abrir Stop Wasting Time</value>
+  </data>
+  <data name="Launcher_OpenElevated" xml:space="preserve">
+    <value>Abrir como administrador</value>
+  </data>
+  <data name="Launcher_OpenAnyway" xml:space="preserve">
+    <value>Abrir igual, sin bloqueo de sitios</value>
+  </data>
+  <data name="Launcher_Status" xml:space="preserve">
+    <value>ESTADO DEL ARRANQUE</value>
+  </data>
+  <data name="Launcher_Admin" xml:space="preserve">
+    <value>Permisos de administrador</value>
+  </data>
+  <data name="Launcher_Admin_Yes" xml:space="preserve">
+    <value>Sí, puede bloquear apps y sitios</value>
+  </data>
+  <data name="Launcher_Admin_No" xml:space="preserve">
+    <value>No, el bloqueo de sitios no va a funcionar</value>
+  </data>
+  <data name="Launcher_Blocklist" xml:space="preserve">
+    <value>Lista de bloqueo</value>
+  </data>
+  <data name="Launcher_Rules" xml:space="preserve">
+    <value>{0} y {1} en la lista</value>
+  </data>
+  <data name="Launcher_Database" xml:space="preserve">
+    <value>Base de datos</value>
+  </data>
+  <data name="Launcher_Version" xml:space="preserve">
+    <value>Versión {0}</value>
+  </data>
+  <data name="Launcher_DataFolder" xml:space="preserve">
+    <value>Carpeta de datos</value>
+  </data>
+  <data name="Launcher_DataFolder_Tooltip" xml:space="preserve">
+    <value>Abrir la carpeta de datos</value>
+  </data>
+  <data name="Launcher_ElevationFailed" xml:space="preserve">
+    <value>No se pudo abrir como administrador: {0}</value>
+  </data>
+  <data name="Toast_Title" xml:space="preserve">
+    <value>Distracción bloqueada</value>
+  </data>
+  <data name="Toast_Closed" xml:space="preserve">
+    <value>{0} se cerró porque está en tu lista de bloqueo.</value>
+  </data>
+  <data name="Toast_ClosedWithTime" xml:space="preserve">
+    <value>{0} se cerró. Quedan {1} de concentración.</value>
+  </data>
+</root>

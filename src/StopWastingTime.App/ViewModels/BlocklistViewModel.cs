@@ -3,6 +3,7 @@ using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StopWastingTime.App.Infrastructure;
+using StopWastingTime.App.Localization;
 using StopWastingTime.Core.Blocking;
 using StopWastingTime.Core.Data;
 using StopWastingTime.Core.Models;
@@ -13,7 +14,8 @@ namespace StopWastingTime.App.ViewModels;
 public partial class BlocklistViewModel(
     BlockRuleRepository rules,
     IProcessScanner scanner,
-    AppIconProvider icons) : ObservableObject
+    AppIconProvider icons,
+    Localizer localizer) : ObservableObject
 {
     [ObservableProperty]
     private string _newAppName = string.Empty;
@@ -22,10 +24,10 @@ public partial class BlocklistViewModel(
     private string _newSiteDomain = string.Empty;
 
     [ObservableProperty]
-    private string? _error;
-
-    [ObservableProperty]
     private RunningProcessViewModel? _selectedProcess;
+
+    /// <summary>Why the last thing typed could not be added.</summary>
+    public LocalizedText Error { get; } = new(localizer);
 
     public ObservableCollection<BlockRuleViewModel> Apps { get; } = [];
 
@@ -34,9 +36,9 @@ public partial class BlocklistViewModel(
     /// <summary>What is running right now, so an app can be added without typing its executable name.</summary>
     public ObservableCollection<RunningProcessViewModel> DetectedProcesses { get; } = [];
 
-    public string AppsCountText => Describe(Apps, "app", "apps");
+    public string AppsCountText => Describe(Apps, "Blocklist_AppsCount");
 
-    public string SitesCountText => Describe(Sites, "sitio", "sitios");
+    public string SitesCountText => Describe(Sites, "Blocklist_SitesCount");
 
     public bool HasApps => Apps.Count > 0;
 
@@ -55,7 +57,7 @@ public partial class BlocklistViewModel(
 
         foreach (var rule in all)
         {
-            var item = new BlockRuleViewModel(rule, rules);
+            var item = new BlockRuleViewModel(rule, rules, localizer);
 
             if (rule.Kind == BlockKind.Process)
             {
@@ -148,17 +150,17 @@ public partial class BlocklistViewModel(
     [RelayCommand]
     private async Task AddSiteAsync()
     {
-        Error = null;
+        Error.Clear();
 
         if (!DomainNormalizer.TryNormalize(NewSiteDomain, out var domain))
         {
-            Error = "Escribí un dominio, por ejemplo instagram.com";
+            Error.Set(text => text["Blocklist_Error_DomainRequired"]);
             return;
         }
 
         if (Sites.Any(site => string.Equals(site.Value, domain, StringComparison.Ordinal)))
         {
-            Error = $"{domain} ya está en la lista.";
+            Error.Set(text => text.Format("Blocklist_Error_AlreadyListed", domain));
             return;
         }
 
@@ -170,7 +172,7 @@ public partial class BlocklistViewModel(
             IsEnabled = true
         });
 
-        Sites.Add(new BlockRuleViewModel(stored, rules));
+        Sites.Add(new BlockRuleViewModel(stored, rules, localizer));
         NewSiteDomain = string.Empty;
         RaiseCounts();
     }
@@ -193,25 +195,25 @@ public partial class BlocklistViewModel(
 
     private async Task AddAppCoreAsync(string input, ImageSource? icon, string? iconPath)
     {
-        Error = null;
+        Error.Clear();
 
         var value = ProcessNames.Normalize(input);
 
         if (value.Length == 0)
         {
-            Error = "Escribí el nombre del programa, por ejemplo steam";
+            Error.Set(text => text["Blocklist_Error_NameRequired"]);
             return;
         }
 
         if (ProcessNames.IsProtected(value))
         {
-            Error = $"{value} es parte de Windows o de esta app, así que no se puede bloquear.";
+            Error.Set(text => text.Format("Blocklist_Error_Protected", value));
             return;
         }
 
         if (Apps.Any(app => string.Equals(app.Value, value, StringComparison.Ordinal)))
         {
-            Error = $"{value} ya está en la lista.";
+            Error.Set(text => text.Format("Blocklist_Error_AlreadyListed", value));
             return;
         }
 
@@ -224,9 +226,20 @@ public partial class BlocklistViewModel(
             IconPath = iconPath
         });
 
-        Apps.Add(new BlockRuleViewModel(stored, rules) { Icon = icon });
+        Apps.Add(new BlockRuleViewModel(stored, rules, localizer) { Icon = icon });
         RefreshProcesses();
         RaiseCounts();
+    }
+
+    /// <summary>The counts and the rows' spoken names are sentences; they go again in the new language.</summary>
+    public void ApplyLanguage()
+    {
+        RaiseCounts();
+
+        foreach (var row in Apps.Concat(Sites))
+        {
+            row.RefreshTexts();
+        }
     }
 
     private void RaiseCounts()
@@ -256,18 +269,17 @@ public partial class BlocklistViewModel(
         return paths;
     }
 
-    private static string Describe(ICollection<BlockRuleViewModel> items, string singular, string plural)
-    {
-        var enabled = items.Count(item => item.IsEnabled);
-        return $"{enabled} de {items.Count} {(items.Count == 1 ? singular : plural)} activ{(items.Count == 1 ? "a" : "as")}";
-    }
+    /// <summary>"2 of 3 apps switched on": the plural follows the total, not the ones switched on.</summary>
+    private string Describe(ICollection<BlockRuleViewModel> items, string key) =>
+        localizer.Plural(key, items.Count, items.Count(item => item.IsEnabled));
 
     private static string Capitalize(string value) =>
         value.Length == 0 ? value : char.ToUpperInvariant(value[0]) + value[1..];
 }
 
 /// <summary>One row of the blocklist. Flipping the switch saves straight away.</summary>
-public partial class BlockRuleViewModel(BlockRule rule, BlockRuleRepository repository) : ObservableObject
+public partial class BlockRuleViewModel(BlockRule rule, BlockRuleRepository repository, Localizer localizer)
+    : ObservableObject
 {
     [ObservableProperty]
     private bool _isEnabled = rule.IsEnabled;
@@ -292,6 +304,11 @@ public partial class BlockRuleViewModel(BlockRule rule, BlockRuleRepository repo
         : "?";
 
     public bool IsWebsite => rule.Kind == BlockKind.Website;
+
+    /// <summary>What a screen reader says for the delete button, which is otherwise only an icon.</summary>
+    public string RemoveName => localizer.Format("Blocklist_Remove_Name", rule.DisplayName);
+
+    public void RefreshTexts() => OnPropertyChanged(nameof(RemoveName));
 
     partial void OnIsEnabledChanged(bool value)
     {

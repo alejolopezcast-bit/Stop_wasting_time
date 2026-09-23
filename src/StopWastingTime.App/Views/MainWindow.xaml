@@ -7,6 +7,7 @@
         xmlns:controls="clr-namespace:StopWastingTime.App.Controls"
         xmlns:viewModels="clr-namespace:StopWastingTime.App.ViewModels"
         xmlns:views="clr-namespace:StopWastingTime.App.Views"
+        xmlns:loc="clr-namespace:StopWastingTime.App.Localization"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewModels:ShellViewModel}"
         Title="Stop Wasting Time"
@@ -122,7 +123,7 @@
                                        VerticalAlignment="Center"
                                        Foreground="{Binding IsUltraSessionRunning, Converter={StaticResource BoolToResource},
                                                             ConverterParameter=UltraBrush|AccentBrightBrush}" />
-                            <TextBlock Text="de concentración"
+                            <TextBlock Text="{loc:Tr Shell_OfFocus}"
                                        Margin="6,0,0,0"
                                        FontSize="12.5"
                                        VerticalAlignment="Center"
@@ -145,6 +146,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="12,6,0,22">
@@ -154,7 +156,7 @@
                                        Foreground="{StaticResource TextPrimaryBrush}"
                                        FontSize="13.5"
                                        FontWeight="SemiBold" />
-                            <TextBlock Text="Concentración"
+                            <TextBlock Text="{loc:Tr Shell_Tagline}"
                                        Style="{StaticResource OverlineTextStyle}"
                                        Margin="0,1,0,0" />
                         </StackPanel>
@@ -174,7 +176,7 @@
                                 <Ellipse Width="7" Height="7" VerticalAlignment="Center"
                                          Fill="{Binding IsUltraSessionRunning, Converter={StaticResource BoolToResource},
                                                         ConverterParameter=UltraBrush|SuccessBrush}" />
-                                <TextBlock Text="SESIÓN EN CURSO"
+                                <TextBlock Text="{loc:Tr Shell_SessionRunning}"
                                            Style="{StaticResource OverlineTextStyle}"
                                            Margin="8,0,0,0"
                                            VerticalAlignment="Center" />
@@ -184,9 +186,25 @@
                                        FontSize="26"
                                        FontWeight="Light"
                                        Margin="0,6,0,0" />
-                            <TextBlock Text="restantes" Style="{StaticResource LabelTextStyle}" />
+                            <TextBlock Text="{loc:Tr Shell_Remaining}" Style="{StaticResource LabelTextStyle}" />
                         </StackPanel>
                     </Border>
+
+                    <!-- Language, always within reach, and changed without restarting -->
+                    <StackPanel Grid.Row="4" Margin="2,16,2,0">
+                        <StackPanel Orientation="Horizontal" Margin="10,0,0,8">
+                            <Path Data="{StaticResource IconGlobe}"
+                                  Style="{StaticResource SmallIconStyle}"
+                                  Stroke="{StaticResource TextTertiaryBrush}"
+                                  Width="12"
+                                  Height="12" />
+                            <TextBlock Text="{loc:Tr Language_Title}"
+                                       Style="{StaticResource OverlineTextStyle}"
+                                       Margin="7,0,0,0"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <controls:LanguagePicker />
+                    </StackPanel>
                 </Grid>
 
                 <!-- Current screen -->
